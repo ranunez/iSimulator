@@ -9,7 +9,7 @@
 import Foundation
 import ObjectMapper
 
-class DeviceType: Mappable {
+final class DeviceType {
     var name = ""
     var identifier = ""
     
@@ -18,9 +18,5 @@ class DeviceType: Mappable {
     func mapping(map: Map) {
         name <- map["name"]
         identifier <- map["identifier"]
-    }
-    
-    var dataReportDic: [String: String] {
-        return ["n": name, "id": identifier]
     }
 }

@@ -8,11 +8,10 @@
 
 import Cocoa
 
-class DeviceMenuItem: NSMenuItem {
-    let device: Device
+final class DeviceMenuItem: NSMenuItem {
     let isEmptyApp: Bool
+    
     init(_ device: Device) {
-        self.device = device
         isEmptyApp = !device.applications.isEmpty
         super.init(title: device.name, action: nil, keyEquivalent: "")
         self.onStateImage = NSImage.init(named: NSImage.statusAvailableName)
@@ -113,14 +112,12 @@ private func pairActionItems(_ device: Device) -> [NSMenuItem] {
 
 protocol DeviceActionable {
     init(_ device: Device)
-    var device: Device { get }
     var title: String { get }
     var icon: NSImage? { get }
     var isAvailable: Bool { get }
-    func perform()
 }
 
-class DevicePairAction: DeviceActionable {
+final class DevicePairAction: DeviceActionable {
     required init(_ device: Device) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -144,12 +141,14 @@ class DevicePairAction: DeviceActionable {
     }
 }
 
-class DeviceUnpairAction: DeviceActionable {
+final class DeviceUnpairAction: DeviceActionable {
     let device: Device
     let title: String
+    
     var isAvailable: Bool {
         return device.pairUDID != nil
     }
+    
     var icon: NSImage?
     
     required init(_ device: Device) {
@@ -166,7 +165,7 @@ class DeviceUnpairAction: DeviceActionable {
     
 }
 
-class DeviceStateAction: DeviceActionable {
+final class DeviceStateAction: DeviceActionable {
     let device: Device
     let title: String
     var isAvailable: Bool = true
@@ -193,7 +192,7 @@ class DeviceStateAction: DeviceActionable {
     
 }
 
-class DeviceEraseAction: DeviceActionable {
+final class DeviceEraseAction: DeviceActionable {
     let device: Device
     let title: String
     var isAvailable: Bool = true
@@ -234,7 +233,7 @@ class DeviceEraseAction: DeviceActionable {
     }
 }
 
-class DeviceDeleteAction: DeviceActionable {
+final class DeviceDeleteAction: DeviceActionable {
     let device: Device
     let title: String
     var isAvailable: Bool = true

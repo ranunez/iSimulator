@@ -8,14 +8,14 @@
 
 import Cocoa
 
-class BarManager {
+final class BarManager {
     static let `default` = BarManager.init()
     private let queue = DispatchQueue(label: "iSimulator.update.queue")
     private let statusItem: NSStatusItem
     private let menu = NSMenu()
     private var watch: SKQueue?
-    private var deviceInfoWatch: FileWatch?
     private var refreshTask: DispatchWorkItem?
+    private var preferenceWindowController: NSWindowController?
     
     private init() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -70,8 +70,7 @@ class BarManager {
         var hasAppDeviceItemDic: [String: [NSMenuItem]] = [:]
         var emptyAppDeviceItemDic: [String: [NSMenuItem]] = [:]
         TotalModel.default.update()
-        // 更新log状态
-        LogReport.default.logSimctlList()
+        
         TotalModel.default.runtimes.forEach { (r) in
             var hasAppDeviceItems: [NSMenuItem] = []
             var emptyAppDeviceItems: [NSMenuItem] = []
@@ -103,7 +102,7 @@ class BarManager {
             }
         }
         DispatchQueue.main.async {
-            self.deviceInfoWatch = try? FileWatch(paths: deviceInfoURLPath, createFlag: [.UseCFTypes, .FileEvents], runLoop: .current, latency: 1, eventHandler: { [weak self] (event) in
+            _ = try? FileWatch(paths: deviceInfoURLPath, createFlag: [.UseCFTypes, .FileEvents], runLoop: .current, latency: 1, eventHandler: { [weak self] (event) in
                 if event.flag.contains(.ItemIsFile) && event.flag.contains(.ItemRenamed) {
                     self?.refresh()
                 }
@@ -160,7 +159,6 @@ class BarManager {
         NSApp.terminate(nil)
     }
     
-    private var preferenceWindowController: NSWindowController?
     @objc private func preference(_ sender: NSMenuItem) {
         if let controller = preferenceWindowController {
             controller.close()

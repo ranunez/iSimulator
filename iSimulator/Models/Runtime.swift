@@ -14,8 +14,7 @@ enum Availability: String {
     case unavailable = "(unavailable, runtime profile not found)"
 }
 
-class Runtime: Mappable {
-    
+final class Runtime: Mappable {
     enum OSType: String {
         case iOS, tvOS, watchOS, None
     }
@@ -25,16 +24,19 @@ class Runtime: Mappable {
     var name = ""
     var identifier = ""
     var version = ""
+    
     var devices: [Device] = []
+    
     var devicetypes: [DeviceType] = []
+    
     var osType: OSType{
-        if name.contains("iOS"){
+        if name.contains("iOS") {
             return .iOS
-        }else if name.contains("tvOS"){
+        } else if name.contains("tvOS") {
             return .tvOS
-        }else if name.contains("watchOS"){
+        } else if name.contains("watchOS") {
             return .watchOS
-        }else{
+        } else {
             return .None
         }
     }
@@ -49,9 +51,5 @@ class Runtime: Mappable {
         name <- map["name"]
         identifier <- map["identifier"]
         version <- map["version"]
-    }
-    
-    var dataReportDic: [String: String] {
-        return ["n": name, "b": buildversion, "v": version, "id": identifier]
     }
 }

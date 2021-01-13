@@ -8,11 +8,11 @@
 
 import Foundation
 
-class AppGroup: Hashable {
+final class AppGroup: Hashable {
     let fileURL: URL
     let id: String
     
-    private(set) var linkURL:URL?
+    private var linkURL: URL?
     
     init(fileURL: URL, id: String) {
         self.fileURL = fileURL
@@ -29,10 +29,6 @@ class AppGroup: Hashable {
         hasher.combine(fileURL)
     }
     
-}
-
-extension AppGroup {
-    
     func createLinkDir(device: Device) {
         guard self.linkURL == nil else {
             return
@@ -42,7 +38,7 @@ extension AppGroup {
         let duplicateDeviceNames = device.runtime.devices.map{$0.name}.divideDuplicates().duplicates
         if duplicateDeviceNames.contains(device.name) {
             url.appendPathComponent("\(device.name)_\(device.udid)")
-        }else{
+        } else {
             url.appendPathComponent(device.name)
         }
         url.appendPathComponent("AppGroupSandBox")
@@ -64,5 +60,4 @@ extension AppGroup {
         try? FileManager.default.removeItem(at: url)
         try? FileManager.default.createSymbolicLink(at: url, withDestinationURL: destURL)
     }
-    
 }

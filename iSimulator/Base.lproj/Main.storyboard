@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -600,7 +599,7 @@
                                         <menuItem title="Show Sidebar" keyEquivalent="s" id="kIP-vf-haE">
                                             <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                             <connections>
-                                                <action selector="toggleSourceList:" target="Ady-hI-5gd" id="iwa-gc-5KM"/>
+                                                <action selector="toggleSidebar:" target="Ady-hI-5gd" id="iwa-gc-5KM"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Enter Full Screen" keyEquivalent="f" id="4J7-dP-txa">
@@ -673,16 +672,22 @@
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="r0X-PE-s76"/>
                                 <toolbarItem implicitItemIdentifier="3B82C268-CF40-48DA-B0FE-FE0135BD6AB5" explicitItemIdentifier="General" label="General" paletteLabel="General" tag="-1" image="NSPreferencesGeneral" selectable="YES" id="M2q-oD-6og">
+                                    <size key="minSize" width="22" height="22"/>
+                                    <size key="maxSize" width="22" height="22"/>
                                     <connections>
                                         <action selector="toolBarAction:" target="THI-BN-Wc3" id="zon-JY-pnN"/>
                                     </connections>
                                 </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="68740C71-BBD8-459A-8826-BE9086BE0DDA" explicitItemIdentifier="About" label="About" paletteLabel="About" tag="-1" image="about" selectable="YES" id="bLD-fH-UrQ">
+                                    <size key="minSize" width="22" height="22"/>
+                                    <size key="maxSize" width="22" height="22"/>
                                     <connections>
                                         <action selector="toolBarAction:" target="THI-BN-Wc3" id="PXx-bz-VOP"/>
                                     </connections>
                                 </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="467E2091-77EB-4BFF-A87F-3407CC491BC4" explicitItemIdentifier="Xcode Select" label="Xcode" paletteLabel="Xcode" tag="-1" image="Xcode" selectable="YES" id="5sF-yo-sxH">
+                                    <size key="minSize" width="22" height="22"/>
+                                    <size key="maxSize" width="22" height="22"/>
                                     <connections>
                                         <action selector="toolBarAction:" target="THI-BN-Wc3" id="FOz-SX-80N"/>
                                     </connections>
@@ -713,20 +718,20 @@
             <objects>
                 <viewController id="DTO-21-MCy" customClass="PreferencesViewController" customModule="iSimulator" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="BIT-Qn-M0h">
-                        <rect key="frame" x="0.0" y="0.0" width="454" height="154"/>
+                        <rect key="frame" x="0.0" y="0.0" width="454" height="149"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <tabView type="noTabsNoBorder" translatesAutoresizingMaskIntoConstraints="NO" id="CHe-bh-P1z">
-                                <rect key="frame" x="0.0" y="0.0" width="454" height="154"/>
+                                <rect key="frame" x="0.0" y="0.0" width="454" height="149"/>
                                 <font key="font" metaFont="system"/>
                                 <tabViewItems>
                                     <tabViewItem label="General" identifier="General" id="MMc-6q-Qow">
                                         <view key="view" id="KDL-DV-DI9">
-                                            <rect key="frame" x="0.0" y="0.0" width="454" height="154"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="454" height="149"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <button translatesAutoresizingMaskIntoConstraints="NO" id="7Qz-Ho-fMX">
-                                                    <rect key="frame" x="89" y="52" width="12" height="12"/>
+                                                    <rect key="frame" x="89" y="47" width="12" height="18"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" secondItem="7Qz-Ho-fMX" secondAttribute="height" multiplier="1:1" id="Kau-AZ-MlE"/>
                                                         <constraint firstAttribute="height" constant="12" id="jNM-eB-DYM"/>
@@ -740,7 +745,7 @@
                                                     </connections>
                                                 </button>
                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zRj-qP-QpB">
-                                                    <rect key="frame" x="18" y="100" width="418" height="34"/>
+                                                    <rect key="frame" x="18" y="97" width="418" height="32"/>
                                                     <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" title="iSimulator will create a folder that contains the app's bundle and sandbox. This will make accessing the app's data easier." id="ZRh-MG-YAY">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="systemGrayColor" catalog="System" colorSpace="catalog"/>
@@ -748,7 +753,7 @@
                                                     </textFieldCell>
                                                 </textField>
                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xlj-Lm-BI4">
-                                                    <rect key="frame" x="18" y="74" width="418" height="18"/>
+                                                    <rect key="frame" x="18" y="72" width="418" height="17"/>
                                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Folder Path:" id="uZr-2x-LMU">
                                                         <font key="font" metaFont="system" size="14"/>
                                                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -756,7 +761,7 @@
                                                     </textFieldCell>
                                                 </textField>
                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" preferredMaxLayoutWidth="371" translatesAutoresizingMaskIntoConstraints="NO" id="PdT-zi-aJi">
-                                                    <rect key="frame" x="18" y="49" width="65" height="17"/>
+                                                    <rect key="frame" x="18" y="48" width="65" height="16"/>
                                                     <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" title="iSimulator" id="wOI-0S-KIy">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
@@ -764,7 +769,7 @@
                                                     </textFieldCell>
                                                 </textField>
                                                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Qrd-YB-Iip">
-                                                    <rect key="frame" x="14" y="13" width="96" height="32"/>
+                                                    <rect key="frame" x="13" y="13" width="90" height="32"/>
                                                     <buttonCell key="cell" type="push" title="change..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="gtD-H4-VBB">
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                         <font key="font" metaFont="system"/>
@@ -939,10 +944,10 @@ You can use one the following ways:</string>
         </scene>
     </scenes>
     <resources>
-        <image name="NSFollowLinkFreestandingTemplate" width="14" height="14"/>
-        <image name="NSPreferencesGeneral" width="128" height="128"/>
+        <image name="NSFollowLinkFreestandingTemplate" width="15" height="15"/>
+        <image name="NSPreferencesGeneral" width="32" height="32"/>
         <image name="Xcode" width="128" height="128"/>
-        <image name="about" width="128" height="128"/>
+        <image name="about" width="64" height="64"/>
         <image name="linkDirectory" width="256" height="256"/>
     </resources>
 </document>

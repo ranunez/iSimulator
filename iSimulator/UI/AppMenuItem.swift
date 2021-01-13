@@ -8,12 +8,8 @@
 
 import Cocoa
 
-class AppMenuItem: NSMenuItem {
-    
-    let app: Application
-    
+final class AppMenuItem: NSMenuItem {
     init(_ app: Application) {
-        self.app = app
         super.init(title: "", action: nil, keyEquivalent: "")
         self.image = app.image
         self.attributedTitle = app.attributeStr

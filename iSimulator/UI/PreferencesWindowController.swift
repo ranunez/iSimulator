@@ -8,8 +8,7 @@
 
 import Cocoa
 
-class PreferencesWindowController: NSWindowController {
-    
+final class PreferencesWindowController: NSWindowController {
     static var firstTabSelectIdentifier = "General"
     @IBOutlet weak var toolBar: NSToolbar!
     

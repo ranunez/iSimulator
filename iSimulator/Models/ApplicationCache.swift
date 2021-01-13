@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ApplicationCache {
+final class ApplicationCache {
 
     var urlAndAppDic: [URL: Application] = [:]
     
@@ -22,6 +22,6 @@ class ApplicationCache {
     }
 }
 
-class AppGroupCache {
+final class AppGroupCache {
     var groups: Set<AppGroup> = []
 }

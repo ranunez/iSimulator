@@ -8,15 +8,13 @@
 
 import Cocoa
 
-class PreferencesViewController: NSViewController {
-
+final class PreferencesViewController: NSViewController {
     @IBOutlet weak var tabView: NSTabView!
     @IBOutlet weak var pathTextField: NSTextField!
     
     @IBOutlet weak var aboutName: NSTextField!
     @IBOutlet weak var aboutVersion: NSTextField!
     @IBOutlet weak var aboutCopyright: NSTextField!
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,17 +27,13 @@ class PreferencesViewController: NSViewController {
         aboutCopyright.stringValue = infoDic["NSHumanReadableCopyright"] as! String
     }
     
-}
-
-// MARK: - Change iSimulator folder
-extension PreferencesViewController {
     @IBAction func changePath(_ sender: Any) {
         let panel = NSOpenPanel()
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
-        panel.begin { (resp) in
-            if resp.rawValue == NSFileHandlingPanelCancelButton{
+        panel.begin { resp in
+            if resp.rawValue == NSFileHandlingPanelCancelButton {
                 return
             }
             if let url = panel.url {

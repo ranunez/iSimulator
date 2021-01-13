@@ -3,12 +3,6 @@
 set -e
 set -o pipefail
 
-if ! command -v carthage; then
-  echo "build needs 'carthage' to bootstrap dependencies"
-  echo "You can install it using brew. E.g. $ brew install carthage"
-  exit 1;
-fi
-
 echo "start chekout dependencies..."
 
 carthage checkout

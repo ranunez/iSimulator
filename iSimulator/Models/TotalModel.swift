@@ -9,13 +9,11 @@
 import AppKit
 import ObjectMapper
 
-class TotalModel: Mappable {
-    
+final class TotalModel: Mappable {
     static let `default` = TotalModel()
     var isForceUpdate = true
     
     private var lastXcodePath = ""
-    private var isXcode9OrGreater = false
     private var appCache = ApplicationCache()
     private var groupCache = AppGroupCache()
     
@@ -23,28 +21,11 @@ class TotalModel: Mappable {
         return shell("/usr/bin/xcrun", arguments: "xcode-select", "-p").outStr
     }
     
-    private func updateXcodeVersion() {
-        var url = URL.init(fileURLWithPath: lastXcodePath)
-        url.deleteLastPathComponent()
-        url.appendPathComponent("Info.plist")
-        guard let appInfoDict = NSDictionary(contentsOf: url),
-            let version = appInfoDict["CFBundleShortVersionString"] as? String else {
-                return
-        }
-        let versionNumber = NSDecimalNumber.init(string: version)
-        let result = versionNumber.compare(NSDecimalNumber.init(string: "9.0"))
-        if result != .orderedAscending {
-            isXcode9OrGreater = true
-        }
-    }
-    
-    ///该方法： 耗时 && 阻塞
     func update() {
         let xcodePath = self.xcodePath()
         if lastXcodePath != xcodePath{
             isForceUpdate = true
             lastXcodePath = xcodePath
-            //updateXcodeVersion()
         }
         if isForceUpdate {
             isForceUpdate = false
@@ -65,13 +46,16 @@ class TotalModel: Mappable {
     }
     
     private var devicetypes: [DeviceType] = []
-    var iOSDevicetypes: [DeviceType] {
+    
+    private var iOSDevicetypes: [DeviceType] {
         return devicetypes.filter{$0.name.contains("iPhone") || $0.name.contains("iPad")}
     }
-    var tvOSDevicetypes: [DeviceType] {
+    
+    private var tvOSDevicetypes: [DeviceType] {
         return devicetypes.filter{$0.name.contains("TV")}
     }
-    var watchOSDevicetypes: [DeviceType] {
+    
+    private var watchOSDevicetypes: [DeviceType] {
         return devicetypes.filter{$0.name.contains("Watch")}
     }
     
@@ -111,12 +95,11 @@ class TotalModel: Mappable {
             }
             r.devices.forEach{
                 $0.runtime = r
-                //⚠️⚠️关联之后，再更新device的APP，否则取不到device的runtime⚠️⚠️
                 $0.updateApps(with: appCache)
                 $0.updateAppGroups(with: groupCache)
             }
         }
-        // 关联pair
+        
         let tempAllDevice: [Device] = runtimes.flatMap { $0.devices }
         pairs.forEach { (key, pair) in
             let watch = tempAllDevice.first(where: { (device) -> Bool in
@@ -140,7 +123,7 @@ class TotalModel: Mappable {
             w.pairUDID = key
             p.pairs.append(w)
         }
-        // 更新缓存
+        
         self.updateCache()
     }
     
@@ -151,15 +134,13 @@ class TotalModel: Mappable {
         var sandboxURLsCache: Set<URL> = []
         
         applications.forEach { (app) in
-            //添加至临时缓存
             urlAndAppDicCache[app.bundleDirUrl] = app
             sandboxURLsCache.insert(app.sandboxDirUrl)
             //从旧的缓存中移除
             self.appCache.urlAndAppDic.removeValue(forKey: app.bundleDirUrl)
             self.appCache.sandboxURLs.remove(app.sandboxDirUrl)
         }
-        // 删除不存在的app虚拟文件夹
-        // 不在app deinit 方法里面 removeLinkDir， 因为deinit方法调用有延迟
+        
         let invalidApp = self.appCache.urlAndAppDic
         DispatchQueue.main.async {
             invalidApp.forEach { $0.value.removeLinkDir() }
@@ -167,19 +148,5 @@ class TotalModel: Mappable {
         
         self.appCache.urlAndAppDic = urlAndAppDicCache
         self.appCache.sandboxURLs = sandboxURLsCache
-    }
-    
-    var dataReportDic: [String: Any] {
-        let r = runtimes.map { $0.dataReportDic }
-        let dt = devicetypes.map { $0.dataReportDic }
-        let d = devices.mapValues {
-            $0.map({
-                $0.dataReportDic
-            })
-        }
-        let p = pairs.mapValues {
-            $0.dataReportDic
-        }
-        return ["r": r, "dt": dt, "d": d, "p": p]
     }
 }
