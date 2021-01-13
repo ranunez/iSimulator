@@ -32,14 +32,12 @@
 		31CD6D0421B2942300E49DC0 /* ApplicationCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CD6D0321B2942300E49DC0 /* ApplicationCache.swift */; };
 		8C4DE1F125AF6DBA006A474C /* FBControlCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338621A7F5FE004ADEE3 /* FBControlCore.framework */; };
 		8C4DE1F225AF6DBA006A474C /* FBControlCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338621A7F5FE004ADEE3 /* FBControlCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		8C4DE1F425AF6DC0006A474C /* FBDeviceControl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338521A7F5FE004ADEE3 /* FBDeviceControl.framework */; };
-		8C4DE1F525AF6DC0006A474C /* FBDeviceControl.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338521A7F5FE004ADEE3 /* FBDeviceControl.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8C4DE1F625AF6E13006A474C /* FBSimulatorControl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338721A7F5FE004ADEE3 /* FBSimulatorControl.framework */; };
 		8C4DE1F725AF6E13006A474C /* FBSimulatorControl.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338721A7F5FE004ADEE3 /* FBSimulatorControl.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		8C4DE1F825AF6E17006A474C /* XCTestBootstrap.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338321A7F5FE004ADEE3 /* XCTestBootstrap.framework */; };
-		8C4DE1F925AF6E17006A474C /* XCTestBootstrap.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338321A7F5FE004ADEE3 /* XCTestBootstrap.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8C4DE22B25AF83C5006A474C /* AppActionable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4DE22A25AF83C5006A474C /* AppActionable.swift */; };
 		8C4DE22D25AF86C2006A474C /* DeviceActionable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4DE22C25AF86C2006A474C /* DeviceActionable.swift */; };
+		8C4DE22E25AFA821006A474C /* FBDeviceControl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338521A7F5FE004ADEE3 /* FBDeviceControl.framework */; };
+		8C4DE22F25AFA821006A474C /* FBDeviceControl.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338521A7F5FE004ADEE3 /* FBDeviceControl.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -50,8 +48,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				8C4DE1F725AF6E13006A474C /* FBSimulatorControl.framework in Embed Frameworks */,
-				8C4DE1F525AF6DC0006A474C /* FBDeviceControl.framework in Embed Frameworks */,
-				8C4DE1F925AF6E17006A474C /* XCTestBootstrap.framework in Embed Frameworks */,
+				8C4DE22F25AFA821006A474C /* FBDeviceControl.framework in Embed Frameworks */,
 				8C4DE1F225AF6DBA006A474C /* FBControlCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -99,8 +96,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C4DE1F625AF6E13006A474C /* FBSimulatorControl.framework in Frameworks */,
-				8C4DE1F825AF6E17006A474C /* XCTestBootstrap.framework in Frameworks */,
-				8C4DE1F425AF6DC0006A474C /* FBDeviceControl.framework in Frameworks */,
+				8C4DE22E25AFA821006A474C /* FBDeviceControl.framework in Frameworks */,
 				8C4DE1F125AF6DBA006A474C /* FBControlCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
