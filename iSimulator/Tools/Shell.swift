@@ -9,7 +9,7 @@
 import Foundation
 
 @discardableResult
-func shell(_ launchPath: String, arguments: String...) -> (outStr: String, err: String) {
+func shell(_ launchPath: String, arguments: String...) -> (outputString: String, outputData: Data) {
     let process = Process()
     process.launchPath = launchPath
     process.arguments = arguments
@@ -19,11 +19,8 @@ func shell(_ launchPath: String, arguments: String...) -> (outStr: String, err: 
     process.standardError = errorPipe
     process.launch()
     
-    
     let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
-    let outputStr = String(data: outputData, encoding: String.Encoding.utf8)
-    let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-    let errorStr = String(data: errorData, encoding: String.Encoding.utf8)
+    let outputStr = String(data: outputData, encoding: .utf8)
     
-    return (outputStr ?? "", errorStr ?? "")
+    return (outputStr ?? "", outputData)
 }

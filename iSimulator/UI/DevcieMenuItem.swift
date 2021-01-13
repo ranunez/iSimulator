@@ -41,228 +41,33 @@ final class DeviceMenuItem: NSMenuItem {
         fatalError("init(cowder:) has not been implemented")
     }
     
-}
-
-private func createDeviceActionItems(_ device: Device) -> [NSMenuItem] {
-    let actionTypes: [DeviceActionable.Type] = [DeviceStateAction.self,
-                                                DeviceUnpairAction.self,
-                                                DeviceEraseAction.self,
-                                                DeviceDeleteAction.self]
-    let actions = actionTypes.map { $0.init(device) }.filter { $0.isAvailable  }
-    var items = actions.map { (action) -> NSMenuItem in
-        let item = NSMenuItem.init(title: action.title, action: #selector(DeviceStateAction.perform), keyEquivalent: "")
-        item.indentationLevel = 1
-        item.target = action as AnyObject
-        item.image = action.icon
-        item.representedObject = action
-        return item
-    }
-    if device.runtime.osType == .iOS {
-        let pairItem = NSMenuItem.init(title: "Pair", action: nil, keyEquivalent: "")
-        pairItem.indentationLevel = 1
-        items.insert(pairItem, at: 1)
-        let submenu = NSMenu.init()
-        let runtimes: [Runtime] = TotalModel.default.runtimes(osType: .watchOS)
-        var pairItemDic: [String: [NSMenuItem]] = [:]
-        runtimes.forEach { (r) in
-            var pairItems: [NSMenuItem] = []
-            r.devices.forEach({ (watchDevice) in
-                if watchDevice.pairUDID != nil {
-                    return
-                }
-                if device.pairs.contains(where: { $0.udid == device.udid }){
-                    return
-                }
-                let action = DevicePairAction.init(device: device, watchDevice: watchDevice)
-                let item = NSMenuItem.init(title: watchDevice.name, action: #selector(DeviceStateAction.perform), keyEquivalent: "")
-                item.target = action as AnyObject
-                item.representedObject = action
-                pairItems.append(item)
-            })
-            if !pairItems.isEmpty {
-                let titleItem = NSMenuItem(title: r.name, action: nil, keyEquivalent: "")
-                titleItem.isEnabled = false
-                pairItems.insert(titleItem, at: 0)
-                pairItemDic[r.name] = pairItems
-            }
-        }
-        pairItemDic.forEach { (_, pairItems) in
-            pairItems.forEach({ (item) in
-                submenu.addItem(item)
-            })
-        }
-        pairItem.submenu = submenu
-    }
-    items.insert(NSMenuItem.init(title: "Simulator Action", action: nil, keyEquivalent: ""), at: 0)
-    return items
-}
-
-private func pairActionItems(_ device: Device) -> [NSMenuItem] {
-    var items: [NSMenuItem] = []
-    let item = NSMenuItem.init(title: "Paired Watches", action: nil, keyEquivalent: "")
-    item.isEnabled = false
-    items.append(item)
-    device.pairs.forEach {
-        let item = DeviceMenuItem.init($0)
-        item.indentationLevel = 1
+    private func pairActionItems(_ device: Device) -> [NSMenuItem] {
+        var items: [NSMenuItem] = []
+        let item = NSMenuItem(title: "Paired Watches", action: nil, keyEquivalent: "")
+        item.isEnabled = false
         items.append(item)
-    }
-    return items
-}
-
-protocol DeviceActionable {
-    init(_ device: Device)
-    var title: String { get }
-    var icon: NSImage? { get }
-    var isAvailable: Bool { get }
-}
-
-final class DevicePairAction: DeviceActionable {
-    required init(_ device: Device) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    let device: Device
-    let watchDevice: Device
-    let title: String
-    var isAvailable: Bool = true
-    var icon: NSImage?
-    required init(device: Device, watchDevice: Device) {
-        self.device = device
-        self.watchDevice = watchDevice
-        self.title = device.name
-    }
-
-    @objc func perform() {
-        watchDevice.pair(to: device)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            BarManager.default.refresh()
+        device.pairs.forEach {
+            let item = DeviceMenuItem.init($0)
+            item.indentationLevel = 1
+            items.append(item)
         }
-    }
-}
-
-final class DeviceUnpairAction: DeviceActionable {
-    let device: Device
-    let title: String
-    
-    var isAvailable: Bool {
-        return device.pairUDID != nil
+        return items
     }
     
-    var icon: NSImage?
-    
-    required init(_ device: Device) {
-        self.device = device
-        self.title = "Unpair"
-    }
-    
-    @objc func perform() {
-        device.unpair()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            BarManager.default.refresh()
+    private func createDeviceActionItems(_ device: Device) -> [NSMenuItem] {
+        let actionTypes: [DeviceActionable.Type] = [DeviceStateAction.self,
+                                                    DeviceEraseAction.self,
+                                                    DeviceDeleteAction.self]
+        let actions = actionTypes.map { $0.init(device) }.filter { $0.isAvailable  }
+        var items = actions.map { (action) -> NSMenuItem in
+            let item = NSMenuItem.init(title: action.title, action: #selector(DeviceStateAction.perform), keyEquivalent: "")
+            item.indentationLevel = 1
+            item.target = action as AnyObject
+            item.image = action.icon
+            item.representedObject = action
+            return item
         }
-    }
-    
-}
-
-final class DeviceStateAction: DeviceActionable {
-    let device: Device
-    let title: String
-    var isAvailable: Bool = true
-    var icon: NSImage?
-    
-    required init(_ device: Device) {
-        self.device = device
-        switch device.state {
-        case .booted:
-            self.title = "Shutdown"
-        case .shutdown:
-            self.title = "Boot"
-        }
-    }
-    
-    @objc func perform() {
-        switch device.state {
-        case .booted:
-            try? device.shutdown()
-        case .shutdown:
-            try? device.boot()
-        }
-    }
-    
-}
-
-final class DeviceEraseAction: DeviceActionable {
-    let device: Device
-    let title: String
-    var isAvailable: Bool = true
-    var icon: NSImage?
-    
-    required init(_ device: Device) {
-        self.device = device
-        self.title = "Erase All content and setting..."
-    }
-    
-    @objc func perform() {
-        let alert: NSAlert = NSAlert()
-        alert.messageText = String(format: "Are you sure you want to Erase '%@'?", device.name)
-        let textView = NSTextView.init(frame: NSRect(x: 0, y: 0, width: 300, height: 45))
-        textView.isEditable = false
-        textView.drawsBackground = false
-        let prefixStr = "This action will make device reset to its initial state.\n The device udid:\n"
-        let udidStr = device.udid
-        let att = NSMutableAttributedString(string: prefixStr + udidStr)
-        att.addAttributes([NSAttributedString.Key.font: NSFont.boldSystemFont(ofSize: 11)], range: NSRange(location: prefixStr.count, length: udidStr.count))
-        textView.textStorage?.append(att)
-        alert.accessoryView = textView
-        alert.alertStyle = .critical
-        alert.addButton(withTitle: "Erase")
-        alert.addButton(withTitle: "Cancel")
-        NSApp.activate(ignoringOtherApps: true)
-        let response = alert.runModal()
-        let deviceState = device.state
-        if response == NSApplication.ModalResponse.alertFirstButtonReturn {
-            try? device.erase()
-            switch deviceState{
-            case .booted:
-                try? device.boot()
-            case .shutdown:
-                try? device.shutdown()
-            }
-        }
-    }
-}
-
-final class DeviceDeleteAction: DeviceActionable {
-    let device: Device
-    let title: String
-    var isAvailable: Bool = true
-    var icon: NSImage?
-    
-    required init(_ device: Device) {
-        self.device = device
-        self.title = "Delete..."
-    }
-    
-    @objc func perform() {
-        let alert: NSAlert = NSAlert()
-        alert.messageText = String(format: "Are you sure you want to delete '%@'?", device.name)
-        let textView = NSTextView.init(frame: NSRect(x: 0, y: 0, width: 300, height: 60))
-        textView.isEditable = false
-        textView.drawsBackground = false
-        let prefixStr = "All of the installed content and settings in this simulator will also be deleted.\n The device udid:\n"
-        let udidStr = device.udid
-        let att = NSMutableAttributedString(string: prefixStr + udidStr)
-        att.addAttributes([NSAttributedString.Key.font: NSFont.boldSystemFont(ofSize: 11)], range: NSRange(location: prefixStr.count, length: udidStr.count))
-        textView.textStorage?.append(att)
-        alert.accessoryView = textView
-        alert.alertStyle = .critical
-        alert.addButton(withTitle: "Delete")
-        alert.addButton(withTitle: "Cancel")
-        NSApp.activate(ignoringOtherApps: true)
-        let response = alert.runModal()
-        if response == NSApplication.ModalResponse.alertFirstButtonReturn {
-            try? device.delete()
-        }
+        items.insert(NSMenuItem.init(title: "Simulator Action", action: nil, keyEquivalent: ""), at: 0)
+        return items
     }
 }

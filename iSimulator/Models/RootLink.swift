@@ -8,10 +8,9 @@
 
 import Cocoa
 
-private let kUserDefaultDocumentKey = "kUserDefaultDocumentKey"
-private let kDocumentName = "iSimulator"
-
 final class RootLink {
+    private static let kUserDefaultDocumentKey = "kUserDefaultDocumentKey"
+    private static let kDocumentName = "iSimulator"
     
     static func createDir() {
         let contents = try? FileManager.default.contentsOfDirectory(at: self.url, includingPropertiesForKeys: [.isHiddenKey], options: [.skipsPackageDescendants, .skipsSubdirectoryDescendants])

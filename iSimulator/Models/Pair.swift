@@ -7,21 +7,23 @@
 //
 
 import Foundation
-import ObjectMapper
 
-final class Pair: Mappable {
+final class Pair {
+    let watch: Device?
+    let phone: Device?
     
-    var watch: Device?
-    var phone: Device?
-    var state = ""
-    
-    required init?(map: Map) {
+    init(json: [String: Any]) {
+        guard let rawWatch = json["watch"] as? [String: Any] else {
+            fatalError()
+        }
+        let watch = iSimulator.Device(json: rawWatch)
         
-    }
-    
-    func mapping(map: Map) {
-        watch <- map["watch"]
-        phone <- map["phone"]
-        state <- map["state"]
+        guard let rawPhone = json["phone"] as? [String: Any] else {
+            fatalError()
+        }
+        let phone = iSimulator.Device(json: rawPhone)
+        
+        self.watch = watch
+        self.phone = phone
     }
 }

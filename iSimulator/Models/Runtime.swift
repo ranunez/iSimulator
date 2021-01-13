@@ -7,49 +7,39 @@
 //
 
 import Foundation
-import ObjectMapper
 
-enum Availability: String {
-    case available = "(available)"
-    case unavailable = "(unavailable, runtime profile not found)"
-}
-
-final class Runtime: Mappable {
+final class Runtime {
     enum OSType: String {
         case iOS, tvOS, watchOS, None
     }
     
-    var buildversion = ""
-    var availability = Availability.unavailable
-    var name = ""
-    var identifier = ""
-    var version = ""
+    let name: String
+    let identifier: String
+    let osType: OSType
     
     var devices: [Device] = []
     
     var devicetypes: [DeviceType] = []
     
-    var osType: OSType{
-        if name.contains("iOS") {
-            return .iOS
-        } else if name.contains("tvOS") {
-            return .tvOS
-        } else if name.contains("watchOS") {
-            return .watchOS
-        } else {
-            return .None
+    init(json: [String: Any]) {
+        guard let name = json["name"] as? String else {
+            fatalError()
         }
-    }
-    
-    required init?(map: Map) {
+        guard let identifier = json["identifier"] as? String else {
+            fatalError()
+        }
         
-    }
-    
-    func mapping(map: Map) {
-        buildversion <- map["buildversion"]
-        availability <- (map["availability"], EnumTransform())
-        name <- map["name"]
-        identifier <- map["identifier"]
-        version <- map["version"]
+        self.name = name
+        self.identifier = identifier
+        
+        if name.contains("iOS") {
+            osType = .iOS
+        } else if name.contains("tvOS") {
+            osType = .tvOS
+        } else if name.contains("watchOS") {
+            osType = .watchOS
+        } else {
+            osType = .None
+        }
     }
 }

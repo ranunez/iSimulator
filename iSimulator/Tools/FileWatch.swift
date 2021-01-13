@@ -1,8 +1,6 @@
 import Foundation
 
 final class FileWatch {
-    
-    // wrap FSEventStreamEventFlags as  OptionSetType
     struct EventFlag: OptionSet {
         let rawValue: FSEventStreamEventFlags
         init(rawValue: FSEventStreamEventFlags) {
@@ -13,7 +11,6 @@ final class FileWatch {
         static let ItemIsFile = EventFlag(rawValue: FSEventStreamEventFlags(kFSEventStreamEventFlagItemIsFile))
     }
     
-    // wrap FSEventStreamCreateFlags as OptionSetType
     struct CreateFlag: OptionSet {
         let rawValue: FSEventStreamCreateFlags
         init(rawValue: FSEventStreamCreateFlags) {
@@ -38,13 +35,11 @@ final class FileWatch {
         case notContainUseCFTypes
     }
     
-    typealias EventHandler = (Event) -> Void
-    
-    private let eventHandler: EventHandler
+    private let eventHandler: (Event) -> Void
     
     private var eventStream: FSEventStreamRef?
     
-    init(paths: [String], createFlag: CreateFlag, runLoop: RunLoop, latency: CFTimeInterval, eventHandler: @escaping EventHandler) throws {
+    init(paths: [String], createFlag: CreateFlag, runLoop: RunLoop, latency: CFTimeInterval, eventHandler: @escaping (Event) -> Void) throws {
         self.eventHandler = eventHandler
         
         var ctx = FSEventStreamContext(version: 0, info: UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()), retain: nil, release: nil, copyDescription: nil)

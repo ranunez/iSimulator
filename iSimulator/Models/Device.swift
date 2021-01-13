@@ -7,29 +7,24 @@
 //
 
 import Foundation
-import ObjectMapper
 
-final class Device: Mappable {
+final class Device {
     enum State: String {
         case booted = "Booted"
         case shutdown = "Shutdown"
     }
     
-    var state = State.shutdown
+    let state: State
     
-    var availability = Availability.unavailable
+    let name: String
     
-    var name = ""
-    
-    var udid = ""
+    let udid: String
     
     var applications: [Application] = []
     
     var appGroups: [AppGroup] = []
     
     var pairs: [Device] = []
-    
-    var pairUDID: String?
     
     weak var runtime: Runtime!
     
@@ -53,39 +48,35 @@ final class Device: Mappable {
         return Device.url.appendingPathComponent("\(self.udid)/device.plist")
     }
     
-    init() {
+    init(json: [String: Any]) {
+        guard let rawState = json["state"] as? String else {
+            fatalError()
+        }
+        guard let state = State(rawValue: rawState) else {
+            fatalError()
+        }
+        guard let name = json["name"] as? String else {
+            fatalError()
+        }
+        guard let udid = json["udid"] as? String else {
+            fatalError()
+        }
         
+        self.state = state
+        self.name = name
+        self.udid = udid
     }
-    
-    required init?(map: Map) {
-        
-    }
-    
-    func mapping(map: Map) {
-        state <- (map["state"], EnumTransform())
-        availability <- (map["availability"], EnumTransform())
-        name <- map["name"]
-        udid <- map["udid"]
-    }
-}
-
-extension Device {
     
     static let url: URL = {
         let userLibraryURL = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first!
         return userLibraryURL.appendingPathComponent("Developer/CoreSimulator/Devices")
     }()
-}
-
-// MARK: - device Action
-extension Device {
+    
     func boot() throws {
-        //        shell("/usr/bin/xcrun", arguments: "simctl", "boot", self.udid)
         try? FBSimTool.default.boot(self.udid)
     }
     
     func shutdown() throws {
-        //        shell("/usr/bin/xcrun", arguments: "simctl", "shutdown", self.udid)
         try? FBSimTool.default.shutdown(self.udid)
     }
     
@@ -105,33 +96,6 @@ extension Device {
     func delete() throws {
         shell("/usr/bin/xcrun", arguments: "simctl", "delete", self.udid)
     }
-    
-    func installApp(_ app: Application) {
-        if self.state == .shutdown {
-            try? self.boot()
-        }
-        shell("/usr/bin/xcrun", arguments: "simctl", "terminate", self.udid, app.bundleID)
-        shell("/usr/bin/xcrun", arguments: "simctl", "install", self.udid, app.appUrl.path)
-    }
-    
-    func launch(appBundleId: String) {
-        if self.state == .shutdown {
-            try? self.boot()
-        }
-        shell("/usr/bin/xcrun", arguments: "simctl", "launch", self.udid, appBundleId)
-    }
-    
-    func unpair() {
-        if let udid = self.pairUDID{
-            shell("/usr/bin/xcrun", arguments: "simctl", "unpair", udid)
-        }
-    }
-    func pair(to device: Device) {
-        shell("/usr/bin/xcrun", arguments: "simctl", "pair", self.udid, device.udid)
-    }
-}
-
-extension Device {
     
     func updateAppGroups(with cache: AppGroupCache) {
         let appGroupContents = (try? FileManager.default.contentsOfDirectory(at: appGroupURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])) ?? []
@@ -155,11 +119,6 @@ extension Device {
             self.appGroups.forEach{ $0.createLinkDir(device: self) }
         }
     }
-}
-
-
-// MARK: - 获取APP：方式1
-extension Device {
     
     func updateApps(with cache: ApplicationCache) {
         let bundleContents = (try? FileManager.default.contentsOfDirectory(at: bundleURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])) ?? []

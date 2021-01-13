@@ -8,8 +8,6 @@
 
 import Cocoa
 
-
-
 extension Array where Element:Equatable {
     func divideDuplicates() -> (result: [Element], duplicates: [Element]) {
         var result = [Element]()

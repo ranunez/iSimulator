@@ -11,7 +11,6 @@ import Cocoa
 protocol AppActionable {
     init(_ app: Application)
     var title: String { get }
-    var icon: NSImage? { get }
     var isAvailable: Bool { get }
 }
 
@@ -21,8 +20,6 @@ final class AppShowInFinderAction: AppActionable {
     let title: String = "Show in Finder"
     
     let isAvailable: Bool = true
-    
-    var icon: NSImage?
     
     required init(_ app: Application) {
         self.app = app
@@ -35,37 +32,12 @@ final class AppShowInFinderAction: AppActionable {
     }
 }
 
-final class DeviceLaunchOtherAppAction: AppActionable {
-    private let app: Application
-    let device: Device
-    let title: String
-    let isAvailable: Bool = true
-    var icon: NSImage?
-    
-    required init(app: Application, device: Device) {
-        self.app = app
-        self.device = device
-        self.title = device.name
-    }
-    
-    required init(_ app: Application) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    @objc func perform() {
-        device.installApp(app)
-        device.launch(appBundleId: app.bundleID)
-    }
-}
-
 final class AppLaunchAction: AppActionable {
     private let app: Application
     
     let title: String = "Launch"
     
     let isAvailable: Bool = true
-    
-    var icon: NSImage?
     
     required init(_ app: Application) {
         self.app = app
@@ -80,8 +52,6 @@ final class AppTerminateAction: AppActionable {
     private let app: Application
     
     let title: String = "Terminate"
-    
-    var icon: NSImage?
     
     var isAvailable: Bool {
         return app.device.state == .booted
@@ -100,8 +70,6 @@ final class AppResetAction: AppActionable {
     private let app: Application
     
     let title: String = "Reset Content..."
-    
-    var icon: NSImage?
     
     var isAvailable: Bool {
         return true
@@ -134,8 +102,6 @@ final class AppUninstallAction: AppActionable {
     var isAvailable: Bool {
         return app.device.state == .booted
     }
-    
-    var icon: NSImage?
     
     required init(_ app: Application) {
         self.app = app

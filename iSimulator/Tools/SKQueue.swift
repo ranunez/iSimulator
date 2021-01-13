@@ -34,11 +34,11 @@ final class SKQueuePath {
 }
 
 final class SKQueue {
-    private var kqueueId: Int32
+    private let kqueueId: Int32
     private var watchedPaths = [String: SKQueuePath]()
     private var keepWatcherThreadRunning = false
     typealias CallClosure = (_ notification: SKQueueNotification, _ path: String) -> Void
-    private var callback:CallClosure
+    private var callback: CallClosure
     
     init?(_ callback: @escaping CallClosure) {
         kqueueId = kqueue()

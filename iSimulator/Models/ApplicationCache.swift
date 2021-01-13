@@ -14,7 +14,6 @@ final class ApplicationCache {
     
     var sandboxURLs: Set<URL> = []
     
-    /// 需要忽略的 boundleURL/sandboxURL：如无效的文件夹
     var ignoreURLs: Set<URL> = []
     
     init() {

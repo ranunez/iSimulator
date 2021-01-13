@@ -12,19 +12,9 @@ final class PreferencesViewController: NSViewController {
     @IBOutlet weak var tabView: NSTabView!
     @IBOutlet weak var pathTextField: NSTextField!
     
-    @IBOutlet weak var aboutName: NSTextField!
-    @IBOutlet weak var aboutVersion: NSTextField!
-    @IBOutlet weak var aboutCopyright: NSTextField!
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.pathTextField.stringValue = RootLink.url.path
-        let infoDic = Bundle.main.infoDictionary!
-        aboutName.stringValue = infoDic["CFBundleDisplayName"] as! String
-        let shortVersion = infoDic["CFBundleShortVersionString"] as! String
-        let version = infoDic["CFBundleVersion"] as! String
-        aboutVersion.stringValue = "Version \(shortVersion) (\(version))"
-        aboutCopyright.stringValue = infoDic["NSHumanReadableCopyright"] as! String
     }
     
     @IBAction func changePath(_ sender: Any) {
@@ -46,7 +36,7 @@ final class PreferencesViewController: NSViewController {
         NSWorkspace.shared.open(RootLink.url)
     }
     
-    func changePathAlert(path: String) {
+    private func changePathAlert(path: String) {
         let alert: NSAlert = NSAlert()
         alert.messageText = String(format: "Are you sure you want to change data path?")
         alert.informativeText = "The iSimulator folder will be moved to the new location."
@@ -67,7 +57,7 @@ final class PreferencesViewController: NSViewController {
         }
     }
     
-    func changePathErrorAlert(error: String) {
+    private func changePathErrorAlert(error: String) {
         let alert: NSAlert = NSAlert()
         alert.messageText = String(format: "Change data path failed!")
         alert.informativeText = error

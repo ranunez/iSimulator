@@ -9,7 +9,7 @@
 import Cocoa
 
 final class BarManager {
-    static let `default` = BarManager.init()
+    static let `default` = BarManager()
     private let queue = DispatchQueue(label: "iSimulator.update.queue")
     private let statusItem: NSStatusItem
     private let menu = NSMenu()
@@ -64,8 +64,8 @@ final class BarManager {
     
     private func deviceItems() -> [NSMenuItem] {
         watch?.removeAllPaths()
-        watch?.addPath(Device.url.path) // 模拟器数量监控
-        var deviceInfoURLPath: [String] = [] // 模拟器开关状态监控
+        watch?.addPath(Device.url.path)
+        var deviceInfoURLPath: [String] = []
         var items: [NSMenuItem] = []
         var hasAppDeviceItemDic: [String: [NSMenuItem]] = [:]
         var emptyAppDeviceItemDic: [String: [NSMenuItem]] = [:]
@@ -77,7 +77,7 @@ final class BarManager {
             let devices = r.devices
             devices.forEach({ (device) in
                 deviceInfoURLPath.append(device.infoURL.path)
-                self.watch?.addPath(device.dataURL.path) // 模拟器App数量监控
+                self.watch?.addPath(device.dataURL.path)
                 if FileManager.default.fileExists(atPath: device.bundleURL.path) {
                     self.watch?.addPath(device.bundleURL.path)
                 }
@@ -109,33 +109,17 @@ final class BarManager {
             })
         }
         let sortKeys = hasAppDeviceItemDic.keys.sorted()
-        for key in sortKeys{
+        for key in sortKeys {
             items.append(contentsOf: hasAppDeviceItemDic[key]!)
         }
-        let deviceTypeItem = DeviceTypeCreateItem()
-        if !emptyAppDeviceItemDic.isEmpty && !deviceTypeItem.submenu!.items.isEmpty {
+        
+        if !emptyAppDeviceItemDic.isEmpty {
             items.append(NSMenuItem.separator())
         }
-        if !emptyAppDeviceItemDic.isEmpty{
-            let otherDeviceItem = NSMenuItem(title: "Other Simulators", action: nil, keyEquivalent: "")
-            let submenu = NSMenu()
-            otherDeviceItem.submenu = submenu
-            let sortKeys = emptyAppDeviceItemDic.keys.sorted()
-            for key in sortKeys{
-                emptyAppDeviceItemDic[key]?.forEach({ (item) in
-                    submenu.addItem(item)
-                })
-            }
-            items.append(otherDeviceItem)
-        }
         
-        if !deviceTypeItem.submenu!.items.isEmpty{
-            items.append(deviceTypeItem)
-        }
         return items
     }
     
-    //MARK: - Common Items and Actions
     private lazy var commonItems: [NSMenuItem] = {
         var items: [NSMenuItem] = []
         let preMenu = NSMenuItem(title: "Preferences...", action: #selector(preference(_:)), keyEquivalent: ",")
@@ -164,13 +148,7 @@ final class BarManager {
             controller.close()
             preferenceWindowController = nil
         }
-        let title = sender.title
-        if title == "Xcode Select..." {
-            PreferencesWindowController.firstTabSelectIdentifier = "Xcode Select"
-        }else{
-            PreferencesWindowController.firstTabSelectIdentifier = "General"
-        }
-        preferenceWindowController = NSStoryboard.init(name: "Main", bundle: nil).instantiateController(withIdentifier: "Preferences") as? NSWindowController
+        preferenceWindowController = NSStoryboard(name: "Main", bundle: nil).instantiateController(withIdentifier: "Preferences") as? NSWindowController
         NSApp.activate(ignoringOtherApps: true)
         preferenceWindowController?.window?.makeKeyAndOrderFront(NSApplication.shared)
     }

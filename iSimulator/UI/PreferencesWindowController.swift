@@ -9,7 +9,6 @@
 import Cocoa
 
 final class PreferencesWindowController: NSWindowController {
-    static var firstTabSelectIdentifier = "General"
     @IBOutlet weak var toolBar: NSToolbar!
     
     override func windowDidLoad() {
@@ -17,7 +16,7 @@ final class PreferencesWindowController: NSWindowController {
         var frame = self.window!.frame
         frame.origin.y = 600
         self.window?.setFrame(frame, display: true, animate: false)
-        let identifier = NSToolbarItem.Identifier(rawValue: PreferencesWindowController.firstTabSelectIdentifier)
+        let identifier = NSToolbarItem.Identifier(rawValue: "General")
         toolBar.selectedItemIdentifier = identifier
         self.tabViewSelect(withIdentifier: identifier)
     }
@@ -30,5 +29,4 @@ final class PreferencesWindowController: NSWindowController {
         let vc = self.contentViewController as! PreferencesViewController
         vc.tabView.selectTabViewItem(withIdentifier: identifier)
     }
-    
 }

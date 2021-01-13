@@ -669,36 +669,8 @@
                         <rect key="contentRect" x="0.0" y="466" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
                         <toolbar key="toolbar" implicitIdentifier="4BA60621-F1D4-49DF-813E-B6E430514644" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="Odm-yx-S70">
-                            <allowedToolbarItems>
-                                <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="r0X-PE-s76"/>
-                                <toolbarItem implicitItemIdentifier="3B82C268-CF40-48DA-B0FE-FE0135BD6AB5" explicitItemIdentifier="General" label="General" paletteLabel="General" tag="-1" image="NSPreferencesGeneral" selectable="YES" id="M2q-oD-6og">
-                                    <size key="minSize" width="22" height="22"/>
-                                    <size key="maxSize" width="22" height="22"/>
-                                    <connections>
-                                        <action selector="toolBarAction:" target="THI-BN-Wc3" id="zon-JY-pnN"/>
-                                    </connections>
-                                </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="68740C71-BBD8-459A-8826-BE9086BE0DDA" explicitItemIdentifier="About" label="About" paletteLabel="About" tag="-1" image="about" selectable="YES" id="bLD-fH-UrQ">
-                                    <size key="minSize" width="22" height="22"/>
-                                    <size key="maxSize" width="22" height="22"/>
-                                    <connections>
-                                        <action selector="toolBarAction:" target="THI-BN-Wc3" id="PXx-bz-VOP"/>
-                                    </connections>
-                                </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="467E2091-77EB-4BFF-A87F-3407CC491BC4" explicitItemIdentifier="Xcode Select" label="Xcode" paletteLabel="Xcode" tag="-1" image="Xcode" selectable="YES" id="5sF-yo-sxH">
-                                    <size key="minSize" width="22" height="22"/>
-                                    <size key="maxSize" width="22" height="22"/>
-                                    <connections>
-                                        <action selector="toolBarAction:" target="THI-BN-Wc3" id="FOz-SX-80N"/>
-                                    </connections>
-                                </toolbarItem>
-                            </allowedToolbarItems>
-                            <defaultToolbarItems>
-                                <toolbarItem reference="M2q-oD-6og"/>
-                                <toolbarItem reference="5sF-yo-sxH"/>
-                                <toolbarItem reference="bLD-fH-UrQ"/>
-                                <toolbarItem reference="r0X-PE-s76"/>
-                            </defaultToolbarItems>
+                            <allowedToolbarItems/>
+                            <defaultToolbarItems/>
                         </toolbar>
                         <connections>
                             <outlet property="delegate" destination="THI-BN-Wc3" id="Iqy-Fi-Cl5"/>
@@ -717,8 +689,8 @@
         <scene sceneID="cVR-0v-kZ3">
             <objects>
                 <viewController id="DTO-21-MCy" customClass="PreferencesViewController" customModule="iSimulator" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="BIT-Qn-M0h">
-                        <rect key="frame" x="0.0" y="0.0" width="454" height="149"/>
+                    <view key="view" misplaced="YES" id="BIT-Qn-M0h">
+                        <rect key="frame" x="0.0" y="0.0" width="454" height="122"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <tabView type="noTabsNoBorder" translatesAutoresizingMaskIntoConstraints="NO" id="CHe-bh-P1z">
@@ -798,128 +770,6 @@
                                             </constraints>
                                         </view>
                                     </tabViewItem>
-                                    <tabViewItem label="About" identifier="About" id="JjJ-5c-yWa">
-                                        <view key="view" id="7iy-8B-B59">
-                                            <rect key="frame" x="0.0" y="0.0" width="454" height="125"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <subviews>
-                                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="h3h-8P-7Ek">
-                                                    <rect key="frame" x="20" y="13" width="100" height="100"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="height" constant="100" id="ACH-gv-6wC"/>
-                                                        <constraint firstAttribute="width" constant="100" id="BRR-O6-XZs"/>
-                                                    </constraints>
-                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="linkDirectory" id="DyF-Bk-X3F"/>
-                                                </imageView>
-                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fBt-L7-u9V">
-                                                    <rect key="frame" x="126" y="69" width="310" height="36"/>
-                                                    <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" title="iSimulator" id="EZf-6j-EGg">
-                                                        <font key="font" metaFont="system" size="30"/>
-                                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" preferredMaxLayoutWidth="200" translatesAutoresizingMaskIntoConstraints="NO" id="RFG-6g-J6W">
-                                                    <rect key="frame" x="126" y="44" width="310" height="17"/>
-                                                    <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" title="Version 1.0 (1)" id="d88-Wy-JV4">
-                                                        <font key="font" metaFont="system"/>
-                                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="qEs-el-JTl">
-                                                    <rect key="frame" x="126" y="20" width="310" height="16"/>
-                                                    <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" title="Copyright © 2017年 niels.jin. All rights reserved." id="8aD-SR-6WI">
-                                                        <font key="font" metaFont="cellTitle"/>
-                                                        <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstItem="qEs-el-JTl" firstAttribute="top" secondItem="RFG-6g-J6W" secondAttribute="bottom" constant="8" symbolic="YES" id="5Fk-xG-vaB"/>
-                                                <constraint firstItem="qEs-el-JTl" firstAttribute="leading" secondItem="RFG-6g-J6W" secondAttribute="leading" id="CeX-yJ-bFe"/>
-                                                <constraint firstItem="fBt-L7-u9V" firstAttribute="top" secondItem="7iy-8B-B59" secondAttribute="top" constant="20" symbolic="YES" id="D0d-AB-oYI"/>
-                                                <constraint firstAttribute="trailing" secondItem="RFG-6g-J6W" secondAttribute="trailing" constant="20" symbolic="YES" id="G2L-d2-ajf"/>
-                                                <constraint firstAttribute="trailing" secondItem="fBt-L7-u9V" secondAttribute="trailing" constant="20" symbolic="YES" id="HJm-Kn-EiL"/>
-                                                <constraint firstAttribute="bottom" secondItem="qEs-el-JTl" secondAttribute="bottom" constant="20" symbolic="YES" id="JbY-GX-orR"/>
-                                                <constraint firstItem="RFG-6g-J6W" firstAttribute="leading" secondItem="fBt-L7-u9V" secondAttribute="leading" id="Uh8-g1-saa"/>
-                                                <constraint firstItem="RFG-6g-J6W" firstAttribute="top" secondItem="fBt-L7-u9V" secondAttribute="bottom" constant="8" symbolic="YES" id="VOa-87-7V4"/>
-                                                <constraint firstItem="fBt-L7-u9V" firstAttribute="leading" secondItem="h3h-8P-7Ek" secondAttribute="trailing" constant="8" symbolic="YES" id="bAb-tx-kRt"/>
-                                                <constraint firstItem="h3h-8P-7Ek" firstAttribute="leading" secondItem="7iy-8B-B59" secondAttribute="leading" constant="20" symbolic="YES" id="hy7-9n-Ph7"/>
-                                                <constraint firstItem="h3h-8P-7Ek" firstAttribute="centerY" secondItem="7iy-8B-B59" secondAttribute="centerY" id="qpO-HI-IuT"/>
-                                                <constraint firstAttribute="trailing" secondItem="qEs-el-JTl" secondAttribute="trailing" constant="20" symbolic="YES" id="zZJ-Vc-pj0"/>
-                                            </constraints>
-                                        </view>
-                                    </tabViewItem>
-                                    <tabViewItem label="Xcode Select" identifier="Xcode Select" id="NWw-V8-Yxe">
-                                        <view key="view" id="Lzi-Xy-v6e">
-                                            <rect key="frame" x="0.0" y="0.0" width="454" height="210"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <subviews>
-                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gaD-sM-mk4">
-                                                    <rect key="frame" x="18" y="122" width="418" height="68"/>
-                                                    <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" id="SOL-gJ-Cwi">
-                                                        <font key="font" metaFont="system"/>
-                                                        <string key="title">iSimulator depends on the Xcode command line tools. If you do not see the simulator that you want, please change the path to the active developer directory.
-You can use one the following ways:</string>
-                                                        <color key="textColor" name="systemGrayColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iqr-Va-UcE">
-                                                    <rect key="frame" x="18" y="96" width="418" height="18"/>
-                                                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Terminal.app" id="u0E-aK-VVS">
-                                                        <font key="font" metaFont="system" size="14"/>
-                                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mC8-cO-NFG">
-                                                    <rect key="frame" x="18" y="45" width="418" height="18"/>
-                                                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Xcode.app" id="XHT-ZH-VPT">
-                                                        <font key="font" metaFont="system" size="14"/>
-                                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2Yw-Xa-dpp">
-                                                    <rect key="frame" x="18" y="71" width="418" height="17"/>
-                                                    <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" title="Usage: sudo xcode-select -s &lt;path&gt;" id="8ZU-zb-8kB">
-                                                        <font key="font" metaFont="system"/>
-                                                        <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WTb-OF-D2M">
-                                                    <rect key="frame" x="18" y="20" width="418" height="17"/>
-                                                    <textFieldCell key="cell" selectable="YES" sendsActionOnEndEditing="YES" title="Preferences -&gt; Locations -&gt; Command line tools" id="1zg-jL-GXi">
-                                                        <font key="font" metaFont="system"/>
-                                                        <color key="textColor" name="disabledControlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstAttribute="trailing" secondItem="2Yw-Xa-dpp" secondAttribute="trailing" constant="20" symbolic="YES" id="05I-zO-iAZ"/>
-                                                <constraint firstItem="iqr-Va-UcE" firstAttribute="top" secondItem="gaD-sM-mk4" secondAttribute="bottom" constant="8" symbolic="YES" id="4XY-4x-CTD"/>
-                                                <constraint firstAttribute="trailing" secondItem="iqr-Va-UcE" secondAttribute="trailing" constant="20" symbolic="YES" id="AVZ-6Z-6bL"/>
-                                                <constraint firstItem="gaD-sM-mk4" firstAttribute="top" secondItem="Lzi-Xy-v6e" secondAttribute="top" constant="20" symbolic="YES" id="Jne-gP-Bod"/>
-                                                <constraint firstAttribute="bottom" secondItem="WTb-OF-D2M" secondAttribute="bottom" constant="20" symbolic="YES" id="PSy-ac-2DP"/>
-                                                <constraint firstItem="2Yw-Xa-dpp" firstAttribute="leading" secondItem="iqr-Va-UcE" secondAttribute="leading" id="Wqr-5K-RGn"/>
-                                                <constraint firstItem="WTb-OF-D2M" firstAttribute="top" secondItem="mC8-cO-NFG" secondAttribute="bottom" constant="8" symbolic="YES" id="bOf-CG-NkE"/>
-                                                <constraint firstItem="mC8-cO-NFG" firstAttribute="leading" secondItem="2Yw-Xa-dpp" secondAttribute="leading" id="bqD-wl-TcU"/>
-                                                <constraint firstAttribute="trailing" secondItem="WTb-OF-D2M" secondAttribute="trailing" constant="20" symbolic="YES" id="e36-FB-RAq"/>
-                                                <constraint firstItem="mC8-cO-NFG" firstAttribute="top" secondItem="2Yw-Xa-dpp" secondAttribute="bottom" constant="8" symbolic="YES" id="gTX-9i-h7B"/>
-                                                <constraint firstItem="gaD-sM-mk4" firstAttribute="leading" secondItem="Lzi-Xy-v6e" secondAttribute="leading" constant="20" symbolic="YES" id="huq-P4-rv9"/>
-                                                <constraint firstAttribute="trailing" secondItem="mC8-cO-NFG" secondAttribute="trailing" constant="20" symbolic="YES" id="khu-hy-PDq"/>
-                                                <constraint firstItem="iqr-Va-UcE" firstAttribute="leading" secondItem="gaD-sM-mk4" secondAttribute="leading" id="mUW-0b-gPJ"/>
-                                                <constraint firstAttribute="trailing" secondItem="gaD-sM-mk4" secondAttribute="trailing" constant="20" symbolic="YES" id="ppa-6I-scy"/>
-                                                <constraint firstItem="2Yw-Xa-dpp" firstAttribute="top" secondItem="iqr-Va-UcE" secondAttribute="bottom" constant="8" symbolic="YES" id="ruH-Pf-HDS"/>
-                                                <constraint firstItem="WTb-OF-D2M" firstAttribute="leading" secondItem="mC8-cO-NFG" secondAttribute="leading" id="uPF-KD-mxt"/>
-                                            </constraints>
-                                        </view>
-                                    </tabViewItem>
                                 </tabViewItems>
                             </tabView>
                         </subviews>
@@ -931,9 +781,6 @@ You can use one the following ways:</string>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="aboutCopyright" destination="qEs-el-JTl" id="GC1-KZ-QYD"/>
-                        <outlet property="aboutName" destination="fBt-L7-u9V" id="cWQ-Vs-ARM"/>
-                        <outlet property="aboutVersion" destination="RFG-6g-J6W" id="X5b-zb-oTp"/>
                         <outlet property="pathTextField" destination="PdT-zi-aJi" id="2u5-qP-Xv1"/>
                         <outlet property="tabView" destination="CHe-bh-P1z" id="V1l-yP-jWj"/>
                     </connections>
@@ -945,9 +792,5 @@ You can use one the following ways:</string>
     </scenes>
     <resources>
         <image name="NSFollowLinkFreestandingTemplate" width="15" height="15"/>
-        <image name="NSPreferencesGeneral" width="32" height="32"/>
-        <image name="Xcode" width="128" height="128"/>
-        <image name="about" width="64" height="64"/>
-        <image name="linkDirectory" width="256" height="256"/>
     </resources>
 </document>

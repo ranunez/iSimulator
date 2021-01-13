@@ -5,11 +5,10 @@
 //  Created by 靳朋 on 2017/8/23.
 //  Copyright © 2017年 niels.jin. All rights reserved.
 //
-
+import Foundation
 import AppKit
-import ObjectMapper
 
-final class TotalModel: Mappable {
+final class TotalModel {
     static let `default` = TotalModel()
     var isForceUpdate = true
     
@@ -17,12 +16,10 @@ final class TotalModel: Mappable {
     private var appCache = ApplicationCache()
     private var groupCache = AppGroupCache()
     
-    private func xcodePath() -> String {
-        return shell("/usr/bin/xcrun", arguments: "xcode-select", "-p").outStr
-    }
+    var runtimes: [Runtime] = []
     
     func update() {
-        let xcodePath = self.xcodePath()
+        let xcodePath = shell("/usr/bin/xcrun", arguments: "xcode-select", "-p").outputString
         if lastXcodePath != xcodePath{
             isForceUpdate = true
             lastXcodePath = xcodePath
@@ -35,65 +32,60 @@ final class TotalModel: Mappable {
                 RootLink.createDir()
             }
         }
-        let jsonStr = shell("/usr/bin/xcrun", arguments: "simctl", "list", "-j").outStr
-        _ = Mapper().map(JSONString: jsonStr, toObject: TotalModel.default)
-    }
-    
-    var runtimes: [Runtime] = []
-    
-    func runtimes(osType: Runtime.OSType) -> [Runtime] {
-        return runtimes.filter{$0.name.contains(osType.rawValue)}
-    }
-    
-    private var devicetypes: [DeviceType] = []
-    
-    private var iOSDevicetypes: [DeviceType] {
-        return devicetypes.filter{$0.name.contains("iPhone") || $0.name.contains("iPad")}
-    }
-    
-    private var tvOSDevicetypes: [DeviceType] {
-        return devicetypes.filter{$0.name.contains("TV")}
-    }
-    
-    private var watchOSDevicetypes: [DeviceType] {
-        return devicetypes.filter{$0.name.contains("Watch")}
-    }
-    
-    private var devices: [String: [Device]] = [:]
-    
-    private var pairs: [String: Pair] = [:]
-    
-    private init() {
+        let jsonData = shell("/usr/bin/xcrun", arguments: "simctl", "list", "-j").outputData
+        guard let json = try? JSONSerialization.jsonObject(with: jsonData, options: .allowFragments) as? [String: Any] else {
+            fatalError()
+        }
         
-    }
-    
-    required init?(map: Map) {
+        if let rawRunTimes = json["runtimes"] as? [[String: Any]] {
+            runtimes = rawRunTimes.map({ iSimulator.Runtime(json: $0) })
+        } else {
+            runtimes = []
+        }
         
-    }
-    
-    func mapping(map: Map) {
-        runtimes.removeAll()
-        devicetypes.removeAll()
-        devices.removeAll()
-        pairs.removeAll()
-        runtimes <- map["runtimes"]
-        devicetypes <- map["devicetypes"]
-        devices <- map["devices"]
-        pairs <- map["pairs"]
-        // 关联 runtime 和 device/devicetype
-        runtimes.forEach{ r in
-            r.devices = self.devices[r.name] ?? (self.devices[r.identifier] ?? [])
+        let devicetypes: [DeviceType]
+        if let rawDeviceTypes = json["devicetypes"] as? [[String: Any]] {
+            devicetypes = rawDeviceTypes.map({ DeviceType(json: $0) })
+        } else {
+            fatalError()
+        }
+        
+        let devices: [String: [Device]]
+        if let rawDevices = json["devices"] as? [String: [[String: Any]]] {
+            var devicesTemp = [String: [Device]]()
+            for (key, values) in rawDevices {
+                devicesTemp[key] = values.map({ iSimulator.Device(json: $0) })
+            }
+            
+            devices = devicesTemp
+        } else {
+            fatalError()
+        }
+        
+        let pairs: [String: Pair]
+        if let rawPairs = json["pairs"] as? [String: [String: Any]] {
+            var pairsTemp = [String: Pair]()
+            for (key, innerJSON) in rawPairs {
+                pairsTemp[key] = Pair(json: innerJSON)
+            }
+            pairs = pairsTemp
+        } else {
+            fatalError()
+        }
+        
+        runtimes.forEach { r in
+            r.devices = devices[r.name] ?? (devices[r.identifier] ?? [])
             switch r.osType {
             case .iOS:
-                r.devicetypes = self.iOSDevicetypes
+                r.devicetypes = devicetypes.filter{ $0.name.contains("iPhone") || $0.name.contains("iPad") }
             case .watchOS:
-                r.devicetypes = self.watchOSDevicetypes
+                r.devicetypes = devicetypes.filter{ $0.name.contains("Watch") }
             case .tvOS:
-                r.devicetypes = self.tvOSDevicetypes
+                r.devicetypes = devicetypes.filter{ $0.name.contains("TV") }
             case .None:
                 break
             }
-            r.devices.forEach{
+            r.devices.forEach {
                 $0.runtime = r
                 $0.updateApps(with: appCache)
                 $0.updateAppGroups(with: groupCache)
@@ -102,15 +94,15 @@ final class TotalModel: Mappable {
         
         let tempAllDevice: [Device] = runtimes.flatMap { $0.devices }
         pairs.forEach { (key, pair) in
-            let watch = tempAllDevice.first(where: { (device) -> Bool in
-                if let watch = pair.watch{
+            let watch = tempAllDevice.first(where: { device -> Bool in
+                if let watch = pair.watch {
                     return device.udid == watch.udid
                 } else {
                     return false
                 }
             })
-            let phone = tempAllDevice.first(where: { (device) -> Bool in
-                if let phone = pair.phone{
+            let phone = tempAllDevice.first(where: { device -> Bool in
+                if let phone = pair.phone {
                     return device.udid == phone.udid
                 } else {
                     return false
@@ -120,14 +112,9 @@ final class TotalModel: Mappable {
                 let p = phone, p.runtime != nil else {
                 return
             }
-            w.pairUDID = key
             p.pairs.append(w)
         }
         
-        self.updateCache()
-    }
-    
-    private func updateCache() {
         let applications = runtimes.flatMap { $0.devices }.flatMap { $0.applications }
         
         var urlAndAppDicCache: [URL: Application] = [:]
@@ -136,7 +123,7 @@ final class TotalModel: Mappable {
         applications.forEach { (app) in
             urlAndAppDicCache[app.bundleDirUrl] = app
             sandboxURLsCache.insert(app.sandboxDirUrl)
-            //从旧的缓存中移除
+            
             self.appCache.urlAndAppDic.removeValue(forKey: app.bundleDirUrl)
             self.appCache.sandboxURLs.remove(app.sandboxDirUrl)
         }

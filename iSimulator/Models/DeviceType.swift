@@ -7,16 +7,14 @@
 //
 
 import Foundation
-import ObjectMapper
 
 final class DeviceType {
-    var name = ""
-    var identifier = ""
+    let name: String
     
-    required init?(map: Map) { }
-    
-    func mapping(map: Map) {
-        name <- map["name"]
-        identifier <- map["identifier"]
+    init(json: [String: Any]) {
+        guard let name = json["name"] as? String else {
+            fatalError()
+        }
+        self.name = name
     }
 }
