@@ -23,25 +23,79 @@ final class BarManager {
         statusItem.menu = menu
         watch = SKQueue({ [weak self] (noti, _) in
             if noti.contains(.Write) && noti.contains(.SizeIncrease) {
-                self?.refresh()
+                self?.refresh(isForceUpdate: false)
             }
         })
         
-        refresh()
+        refresh(isForceUpdate: false)
         
         self.commonItems.forEach({ (item) in
             self.menu.addItem(item)
         })
     }
     
-    func refresh() {
+    func refresh(isForceUpdate: Bool) {
         refreshTask?.cancel()
         let task = DispatchWorkItem { [weak self] in
-            guard let `self` = self else { return }
-            let deviceItems = self.deviceItems()
+            guard let self = self else { return }
+            
+            self.watch?.removeAllPaths()
+            self.watch?.addPath(Device.url.path)
+            var items: [NSMenuItem] = []
+            var hasAppDeviceItemDic: [String: [NSMenuItem]] = [:]
+            var emptyAppDeviceItemDic: [String: [NSMenuItem]] = [:]
+            TotalModel.default.update(isForceUpdate: isForceUpdate)
+            
+            TotalModel.default.runtimes.forEach { r in
+                var hasAppDeviceItems: [NSMenuItem] = []
+                var emptyAppDeviceItems: [NSMenuItem] = []
+                let devices = r.devices
+                devices.forEach({ device in
+                    self.watch?.addPath(device.dataURL.path)
+                    if FileManager.default.fileExists(atPath: device.bundleURL.path) {
+                        self.watch?.addPath(device.bundleURL.path)
+                    }
+                    let deviceItem = DeviceMenuItem(device)
+                    if !device.applications.isEmpty {
+                        hasAppDeviceItems.append(deviceItem)
+                    } else{
+                        emptyAppDeviceItems.append(deviceItem)
+                    }
+                })
+                if !hasAppDeviceItems.isEmpty {
+                    let titleItem = NSMenuItem(title: r.name, action: nil, keyEquivalent: "")
+                    titleItem.isEnabled = false
+                    hasAppDeviceItems.insert(titleItem, at: 0)
+                    hasAppDeviceItemDic[r.name] = hasAppDeviceItems
+                }
+                if !emptyAppDeviceItems.isEmpty {
+                    let titleItem = NSMenuItem(title: r.name, action: nil, keyEquivalent: "")
+                    titleItem.isEnabled = false
+                    emptyAppDeviceItems.insert(titleItem, at: 0)
+                    emptyAppDeviceItemDic[r.name] = emptyAppDeviceItems
+                }
+            }
+            let deviceInfoURLPath: [String] = TotalModel.default.runtimes.flatMap({ $0.devices }).compactMap({ $0.infoURL.path })
+            DispatchQueue.main.async {
+                _ = try? FileWatch(paths: deviceInfoURLPath, eventHandler: { [weak self] eventFlag in
+                    if eventFlag.contains(.ItemIsFile) && eventFlag.contains(.ItemRenamed) {
+                        self?.refresh(isForceUpdate: false)
+                    }
+                })
+            }
+            let sortKeys = hasAppDeviceItemDic.keys.sorted()
+            for key in sortKeys {
+                items.append(contentsOf: hasAppDeviceItemDic[key]!)
+            }
+            
+            if !emptyAppDeviceItemDic.isEmpty {
+                items.append(NSMenuItem.separator())
+            }
+            let deviceItems = items
+            
             DispatchQueue.main.async {
                 self.menu.removeAllItems()
-                deviceItems.forEach({ (item) in
+                deviceItems.forEach({ item in
                     self.menu.addItem(item)
                 })
                 if deviceItems.isEmpty {
@@ -59,64 +113,6 @@ final class BarManager {
         self.queue.asyncAfter(deadline: .now() + 0.75, execute: task)
     }
     
-    private func deviceItems() -> [NSMenuItem] {
-        watch?.removeAllPaths()
-        watch?.addPath(Device.url.path)
-        var deviceInfoURLPath: [String] = []
-        var items: [NSMenuItem] = []
-        var hasAppDeviceItemDic: [String: [NSMenuItem]] = [:]
-        var emptyAppDeviceItemDic: [String: [NSMenuItem]] = [:]
-        TotalModel.default.update()
-        
-        TotalModel.default.runtimes.forEach { (r) in
-            var hasAppDeviceItems: [NSMenuItem] = []
-            var emptyAppDeviceItems: [NSMenuItem] = []
-            let devices = r.devices
-            devices.forEach({ (device) in
-                deviceInfoURLPath.append(device.infoURL.path)
-                self.watch?.addPath(device.dataURL.path)
-                if FileManager.default.fileExists(atPath: device.bundleURL.path) {
-                    self.watch?.addPath(device.bundleURL.path)
-                }
-                let deviceItem = DeviceMenuItem(device)
-                if !device.applications.isEmpty {
-                    hasAppDeviceItems.append(deviceItem)
-                } else{
-                    emptyAppDeviceItems.append(deviceItem)
-                }
-            })
-            if !hasAppDeviceItems.isEmpty {
-                let titleItem = NSMenuItem(title: r.name, action: nil, keyEquivalent: "")
-                titleItem.isEnabled = false
-                hasAppDeviceItems.insert(titleItem, at: 0)
-                hasAppDeviceItemDic[r.name] = hasAppDeviceItems
-            }
-            if !emptyAppDeviceItems.isEmpty {
-                let titleItem = NSMenuItem(title: r.name, action: nil, keyEquivalent: "")
-                titleItem.isEnabled = false
-                emptyAppDeviceItems.insert(titleItem, at: 0)
-                emptyAppDeviceItemDic[r.name] = emptyAppDeviceItems
-            }
-        }
-        DispatchQueue.main.async {
-            _ = try? FileWatch(paths: deviceInfoURLPath, createFlag: [.UseCFTypes, .FileEvents], runLoop: .current, latency: 1, eventHandler: { [weak self] (event) in
-                if event.flag.contains(.ItemIsFile) && event.flag.contains(.ItemRenamed) {
-                    self?.refresh()
-                }
-            })
-        }
-        let sortKeys = hasAppDeviceItemDic.keys.sorted()
-        for key in sortKeys {
-            items.append(contentsOf: hasAppDeviceItemDic[key]!)
-        }
-        
-        if !emptyAppDeviceItemDic.isEmpty {
-            items.append(NSMenuItem.separator())
-        }
-        
-        return items
-    }
-    
     private lazy var commonItems: [NSMenuItem] = {
         let preMenu = NSMenuItem(title: "Preferences...", action: #selector(preference(_:)), keyEquivalent: ",")
         preMenu.target = self
@@ -131,8 +127,7 @@ final class BarManager {
     }()
     
     @objc private func refresh(_ sender: Any) {
-        TotalModel.default.isForceUpdate = true
-        self.refresh()
+        self.refresh(isForceUpdate: true)
     }
     
     @objc private func quitApp(_ sender: Any) {

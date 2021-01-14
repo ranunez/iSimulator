@@ -18,12 +18,14 @@ final class Application {
     let bundleVersion: String
     let image: NSImage
     private let originImage: NSImage
+    
     weak var device: Device!
+    
     private(set) var linkURL: URL?
     
     lazy private(set) var attributeStr: NSMutableAttributedString = {
-        let name = "\(self.bundleDisplayName) - \(self.bundleShortVersion)(\(self.bundleVersion))"
-        let other = "\n\(self.bundleID)"
+        let name = "\(bundleDisplayName) - \(bundleShortVersion)(\(bundleVersion))"
+        let other = "\n\(bundleID)"
         let att = NSMutableAttributedString(string: name + other)
         att.addAttributes([NSAttributedString.Key.font: NSFont.systemFont(ofSize: 13)], range: NSRange(location: 0, length: name.count))
         att.addAttributes([NSAttributedString.Key.font: NSFont.systemFont(ofSize: 11), NSAttributedString.Key.foregroundColor: NSColor.lightGray], range: NSRange(location: name.count, length: other.count))
@@ -35,19 +37,13 @@ final class Application {
         self.bundleDirUrl = bundleDirUrl
         self.sandboxDirUrl = sandboxDirUrl
         
-        guard let contents = try? FileManager.default.contentsOfDirectory(at: bundleDirUrl, includingPropertiesForKeys: nil, options: [.skipsSubdirectoryDescendants, .skipsHiddenFiles])
-            else {
-                return nil
+        guard let contents = try? FileManager.default.contentsOfDirectory(at: bundleDirUrl,
+                                                                          includingPropertiesForKeys: nil,
+                                                                          options: [.skipsSubdirectoryDescendants, .skipsHiddenFiles]) else {
+            return nil
         }
         
-        var appURLTemp: URL?
-        for url in contents{
-            if url.pathExtension == "app" {
-                appURLTemp = url
-                break
-            }
-        }
-        guard let appURL = appURLTemp else { return nil }
+        guard let appURL = contents.first(where: { $0.pathExtension == "app" }) else { return nil }
         self.appUrl = appURL
         
         let appInfoURL = appURL.appendingPathComponent("Info.plist")
@@ -64,19 +60,22 @@ final class Application {
         bundleShortVersion = aBundleShortVersion
         bundleVersion = aBundleVersion
         
-        var iconFiles = ((appInfoDict["CFBundleIcons"] as? NSDictionary)?["CFBundlePrimaryIcon"] as? NSDictionary)?["CFBundleIconFiles"] as? [String]
-        if iconFiles == nil {
-            iconFiles = ["Icon.png"]
+        
+        let iconFile: String?
+        if let cfBundleIconsDictionary = appInfoDict["CFBundleIcons"] as? [String: Any], let cfBundlePrimaryIconDictionary = cfBundleIconsDictionary["CFBundlePrimaryIcon"] as? [String: Any], let icons = cfBundlePrimaryIconDictionary["CFBundleIconFiles"] as? [String] {
+            iconFile = icons.last
+        } else if let cfBundleIconsDictionary = appInfoDict["CFBundleIcons~ipad"] as? [String: Any], let cfBundlePrimaryIconDictionary = cfBundleIconsDictionary["CFBundlePrimaryIcon"] as? [String: Any], let icons = cfBundlePrimaryIconDictionary["CFBundleIconFiles"] as? [String] {
+            iconFile = icons.last?.appending("@2x~ipad")
+        } else {
+            iconFile = "Icon.png"
         }
-        if let imageStr = iconFiles?.last,
-            let bundle = Bundle(url: appUrl),
-            let im = bundle.image(forResource: imageStr) {
+        
+        if let iconFile = iconFile, let bundle = Bundle(url: appUrl), let im = bundle.image(forResource: iconFile) {
             originImage = im
             image = im.appIcon()
         } else {
-            originImage = #imageLiteral(resourceName: "default_ios_app_icon").appIcon(h: 512)
-            
-            image = #imageLiteral(resourceName: "default_ios_app_icon").appIcon()
+            originImage = #imageLiteral(resourceName: "default_ios_app_icon")
+            image = #imageLiteral(resourceName: "default_ios_app_icon_small")
         }
     }
     
@@ -84,42 +83,42 @@ final class Application {
         if device.state == .shutdown {
             try? device.boot()
         }
-        shell("/usr/bin/xcrun", arguments: "simctl", "launch", device.udid, bundleID)
+        xcrun(arguments: "simctl", "launch", device.udid, bundleID)
     }
     
     func terminate() {
-        shell("/usr/bin/xcrun", arguments: "simctl", "terminate", device.udid, bundleID)
+        xcrun(arguments: "simctl", "terminate", device.udid, bundleID)
     }
     
     func uninstall() {
         self.terminate()
-        shell("/usr/bin/xcrun", arguments: "simctl", "uninstall", device.udid, bundleID)
+        xcrun(arguments: "simctl", "uninstall", device.udid, bundleID)
     }
     
     func resetContent() {
-        let contents = try? FileManager.default.contentsOfDirectory(at: sandboxDirUrl, includingPropertiesForKeys: [], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])
-        contents?.forEach({ (url) in
+        let contents = try? FileManager.default.contentsOfDirectory(at: sandboxDirUrl,
+                                                                    includingPropertiesForKeys: [],
+                                                                    options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])
+        contents?.forEach({ url in
             try? FileManager.default.removeItem(at: url)
         })
     }
     
     func createLinkDir() {
-        guard self.linkURL == nil else {
-            return
-        }
-        var url = RootLink.url
-        url.appendPathComponent(self.device.runtime.name)
-        let duplicateDeviceNames = self.device.runtime.devices.map{$0.name}.divideDuplicates().duplicates
-        if duplicateDeviceNames.contains(self.device.name) {
-            url.appendPathComponent("\(self.device.name)_\(self.device.udid)")
-        }else{
+        guard linkURL == nil else { return }
+        var url = UserDefaults.standard.rootLinkURL
+        url.appendPathComponent(device.runtime.name)
+        
+        if device.runtime.devices.filter({ $0.name == device.name }).count > 1 {
+            url.appendPathComponent("\(device.name)_\(device.udid)")
+        } else {
             url.appendPathComponent(device.name)
         }
-        let duplicateAppNames = device.applications.map{$0.bundleDisplayName}.divideDuplicates().duplicates
-        if duplicateAppNames.contains(self.bundleDisplayName) {
-            url.appendPathComponent("\(self.bundleDisplayName)_\(self.bundleID)")
+        
+        if device.applications.filter({ $0.bundleDisplayName == bundleDisplayName }).count > 1 {
+            url.appendPathComponent("\(bundleDisplayName)_\(bundleID)")
         } else {
-            url.appendPathComponent(self.bundleDisplayName)
+            url.appendPathComponent(bundleDisplayName)
         }
         do {
             try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
@@ -129,10 +128,10 @@ final class Application {
         }
         let bundleURL = url.appendingPathComponent("Bundle")
         let sandboxURL = url.appendingPathComponent("Sandbox")
-        createSymbolicLink(at: bundleURL, withDestinationURL: self.bundleDirUrl)
-        createSymbolicLink(at: sandboxURL, withDestinationURL: self.sandboxDirUrl)
+        createSymbolicLink(at: bundleURL, withDestinationURL: bundleDirUrl)
+        createSymbolicLink(at: sandboxURL, withDestinationURL: sandboxDirUrl)
         
-        NSWorkspace.shared.setIcon(self.originImage, forFile: url.path, options:[])
+        NSWorkspace.shared.setIcon(originImage, forFile: url.path, options:[])
     }
     
     private func createSymbolicLink(at url: URL, withDestinationURL destURL: URL) {
@@ -145,9 +144,7 @@ final class Application {
     }
     
     func removeLinkDir() {
-        guard let url = self.linkURL else {
-            return
-        }
+        guard let url = linkURL else { return }
         let bundleURL = url.appendingPathComponent("Bundle")
         if let destinationUrlPath = try? FileManager.default.destinationOfSymbolicLink(atPath: bundleURL.path),
             FileManager.default.fileExists(atPath: destinationUrlPath){
@@ -158,23 +155,40 @@ final class Application {
 }
 
 extension NSImage {
-    fileprivate func appIcon(h:CGFloat = 35) -> NSImage {
-        let size = NSSize(width: h, height: h)
-        let cornerRadius: CGFloat = h/5
+    fileprivate func appIcon(h: CGFloat = 35) -> NSImage {
         guard self.isValid else {
             return self
         }
+        let size = NSSize(width: h, height: h)
         let newImage = NSImage(size: size)
 
         self.size = size
         newImage.lockFocus()
-        NSGraphicsContext.current?.imageInterpolation = .high
+        
+        NSGraphicsContext.current?.imageInterpolation = .low
         NSGraphicsContext.saveGraphicsState()
-        let path = NSBezierPath(roundedRect: NSRect(origin: NSPoint.zero, size: size), xRadius: cornerRadius, yRadius: cornerRadius)
+        
+        let cornerRadius: CGFloat = h / 5
+        let path = NSBezierPath(roundedRect: NSRect(origin: .zero, size: size), xRadius: cornerRadius, yRadius: cornerRadius)
         path.addClip()
-        self.draw(at: NSPoint.zero, from: NSRect(origin: NSPoint.zero, size: size), operation: .copy, fraction: 1.0)
+        self.draw(at: .zero, from: NSRect(origin: .zero, size: size), operation: .copy, fraction: 1.0)
         NSGraphicsContext.restoreGraphicsState()
         newImage.unlockFocus()
         return newImage
+    }
+}
+
+extension UserDefaults {
+    static let kUserDefaultDocumentKey = "kUserDefaultDocumentKey"
+    static let kDocumentName = "iSimulator"
+    
+    var rootLinkURL: URL {
+        let url: URL
+        if let path = string(forKey: Self.kUserDefaultDocumentKey) {
+            url = URL(fileURLWithPath: path)
+        } else {
+            url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        }
+        return url.appendingPathComponent(Self.kDocumentName)
     }
 }

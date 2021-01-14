@@ -31,14 +31,7 @@ iSimulator is a GUI utility to control the Simulator, and manage the app install
 
 ## Usage
 
-Download [App](https://github.com/wigl/iSimulator/releases/download/3.2.2/iSimulator.zip) and run.
-
-## Build from the code
-
-Don't use `carthage bootstrap`, because `FBSimulatorControl` have extra scheme that carthage can not build.
- 
-Please run script with the following:`./carthageBootstrap.sh` to checkout and build dependencies.
-
+Build and run.
 
 ## Requirements
 

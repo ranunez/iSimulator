@@ -22,8 +22,6 @@ final class Device {
     
     var applications: [Application] = []
     
-    var appGroups: [AppGroup] = []
-    
     weak var runtime: Runtime!
     
     var dataURL: URL {
@@ -71,11 +69,11 @@ final class Device {
     }()
     
     func boot() throws {
-        try? FBSimTool.default.boot(self.udid)
+        xcrun(arguments: "simctl", "boot", udid)
     }
     
     func shutdown() throws {
-        try? FBSimTool.default.shutdown(self.udid)
+        xcrun(arguments: "simctl", "shutdown", udid)
     }
     
     func erase() throws {
@@ -90,29 +88,41 @@ final class Device {
             afterTime = 0
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + afterTime) {
-            shell("/usr/bin/xcrun", arguments: "simctl", "erase", self.udid)
+            xcrun(arguments: "simctl", "erase", self.udid)
         }
     }
     
     func delete() throws {
-        shell("/usr/bin/xcrun", arguments: "simctl", "delete", self.udid)
+        xcrun(arguments: "simctl", "delete", udid)
     }
     
-    func updateAppGroups(groupCache: Set<AppGroup>) {
-        let appGroupContents = (try? FileManager.default.contentsOfDirectory(at: appGroupURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])) ?? []
+    func updateAppGroups() {
+        let appGroupContents = try? FileManager.default.contentsOfDirectory(at: appGroupURL,
+                                                                            includingPropertiesForKeys: [.isDirectoryKey],
+                                                                            options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])
         
-        self.appGroups = appGroupContents.compactMap { url -> AppGroup? in
-            if let appGroup = groupCache.first(where: { $0.fileURL == url && !$0.id.contains("com.apple") }) {
-                return appGroup
-            } else if let id = identifier(with: url), !id.contains("com.apple") {
-                return AppGroup(fileURL: url, id: id)
+        appGroupContents?.forEach { fileURL in
+            guard let id = identifier(with: fileURL), !id.contains("com.apple") else { return }
+            var url = UserDefaults.standard.rootLinkURL
+            url.appendPathComponent(runtime.name)
+            
+            if runtime.devices.filter({ $0.name == name }).count > 1 {
+                url.appendPathComponent("\(name)_\(udid)")
             } else {
-                return nil
+                url.appendPathComponent(name)
             }
-        }
-        
-        DispatchQueue.main.async {
-            self.appGroups.forEach{ $0.createLinkDir(device: self) }
+            url.appendPathComponent("AppGroupSandBox")
+            do {
+                try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+                url.appendPathComponent(id)
+                
+                if (try? FileManager.default.destinationOfSymbolicLink(atPath: url.path)) != fileURL.path {
+                    try? FileManager.default.removeItem(at: url)
+                    try? FileManager.default.createSymbolicLink(at: url, withDestinationURL: fileURL)
+                }
+            } catch {
+                return
+            }
         }
     }
     
@@ -126,6 +136,7 @@ final class Device {
         var apps = bundleContents.compactMap { url -> Application? in
             guard let app = cache.urlAndAppDic[url] else { return nil }
             app.device = self
+            app.createLinkDir()
             return app
         }
         
@@ -140,6 +151,7 @@ final class Device {
             }
             if let app = Application(bundleID: bundleID, bundleDirUrl: bundleDirUrl, sandboxDirUrl: sandboxDirUrl) {
                 app.device = self
+                app.createLinkDir()
                 apps.append(app)
             } else {
                 cache.ignoreURLs.insert(bundleDirUrl)
@@ -147,10 +159,6 @@ final class Device {
         }
         idAndSandboxUrlDic.forEach({ cache.ignoreURLs.insert($0.value) })
         self.applications = apps
-        
-        DispatchQueue.main.async {
-          self.applications.forEach{ $0.createLinkDir() }
-        }
     }
     
     private func identifierAndUrl(with urls: [URL]) -> [String: URL] {

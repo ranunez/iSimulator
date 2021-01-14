@@ -37,10 +37,9 @@ final class SKQueue {
     private let kqueueId: Int32
     private var watchedPaths = [String: SKQueuePath]()
     private var keepWatcherThreadRunning = false
-    typealias CallClosure = (_ notification: SKQueueNotification, _ path: String) -> Void
-    private var callback: CallClosure
+    private var callback: (_ notification: SKQueueNotification, _ path: String) -> Void
     
-    init?(_ callback: @escaping CallClosure) {
+    init?(_ callback: @escaping (_ notification: SKQueueNotification, _ path: String) -> Void) {
         kqueueId = kqueue()
         if (kqueueId == -1) {
             return nil

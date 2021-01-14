@@ -13,7 +13,7 @@ final class PreferencesViewController: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.pathTextField.stringValue = RootLink.url.path
+        self.pathTextField.stringValue = UserDefaults.standard.rootLinkURL.path
     }
     
     @IBAction private func changePath(_ sender: Any) {
@@ -24,15 +24,15 @@ final class PreferencesViewController: NSViewController {
         panel.begin { resp in
             guard resp != .cancel else { return }
             guard let url = panel.url else { return }
-            self.changePathAlert(path: url.path)
+            self.changePathAlert(updatedURL: url)
         }
     }
     
     @IBAction private func openPath(_ sender: Any) {
-        NSWorkspace.shared.open(RootLink.url)
+        NSWorkspace.shared.open(UserDefaults.standard.rootLinkURL)
     }
     
-    private func changePathAlert(path: String) {
+    private func changePathAlert(updatedURL: URL) {
         let alert: NSAlert = NSAlert()
         alert.messageText = String(format: "Are you sure you want to change data path?")
         alert.informativeText = "The iSimulator folder will be moved to the new location."
@@ -41,12 +41,18 @@ final class PreferencesViewController: NSViewController {
         alert.addButton(withTitle: "Cancel")
         NSApp.activate(ignoringOtherApps: true)
         alert.beginSheetModal(for: self.view.window!) { response in
-            if response == .alertFirstButtonReturn {
-                if let error = RootLink.update(with: path) {
-                    self.changePathErrorAlert(error: error)
-                    return
+            guard response == .alertFirstButtonReturn else { return }
+            do {
+                guard FileManager.default.fileExists(atPath: updatedURL.path) else {
+                    throw URLError(.fileDoesNotExist)
                 }
-                self.pathTextField.stringValue = RootLink.url.path
+                let linkURL = updatedURL.appendingPathComponent(UserDefaults.kDocumentName)
+                try FileManager.default.moveItem(at: UserDefaults.standard.rootLinkURL, to: linkURL)
+                UserDefaults.standard.set(updatedURL.path, forKey: UserDefaults.kUserDefaultDocumentKey)
+                UserDefaults.standard.synchronize()
+                self.pathTextField.stringValue = updatedURL.path
+            } catch let error {
+                self.changePathErrorAlert(error: error.localizedDescription)
             }
         }
     }

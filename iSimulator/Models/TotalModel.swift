@@ -10,77 +10,72 @@ import AppKit
 
 final class TotalModel {
     static let `default` = TotalModel()
-    var isForceUpdate = true
     
     private var lastXcodePath = ""
     private var appCache = ApplicationCache()
-    private var groupCache = Set<AppGroup>()
     
     var runtimes: [Runtime] = []
     
-    func update() {
-        let xcodePath = shell("/usr/bin/xcrun", arguments: "xcode-select", "-p").outputString
-        if lastXcodePath != xcodePath {
-            isForceUpdate = true
+    func update(isForceUpdate: Bool) {
+        let xcodePathData = xcrun(arguments: "xcode-select", "-p")
+        if let xcodePath = String(data: xcodePathData, encoding: .utf8), lastXcodePath != xcodePath {
             lastXcodePath = xcodePath
+            updateCache()
         }
         if isForceUpdate {
-            isForceUpdate = false
-            appCache = ApplicationCache()
-            groupCache = Set<AppGroup>()
-            DispatchQueue.main.async {
-                RootLink.createDir()
-            }
+            updateCache()
         }
-        let jsonData = shell("/usr/bin/xcrun", arguments: "simctl", "list", "-j").outputData
+        let jsonData = xcrun(arguments: "simctl", "list", "-j")
         guard let json = try? JSONSerialization.jsonObject(with: jsonData, options: .allowFragments) as? [String: Any] else {
             fatalError()
         }
         
-        let devices: [String: [Device]]
-        if let rawDevices = json["devices"] as? [String: [[String: Any]]] {
-            var devicesTemp = [String: [Device]]()
-            for (key, values) in rawDevices {
-                devicesTemp[key] = values.map({ iSimulator.Device(json: $0) })
-            }
-            
-            devices = devicesTemp
-        } else {
-            fatalError()
-        }
-        
-        var urlAndAppDicCache: [URL: Application] = [:]
-        var sandboxURLsCache: Set<URL> = []
-        if let rawRunTimes = json["runtimes"] as? [[String: Any]] {
+        if let rawRunTimes = json["runtimes"] as? [[String: Any]], let rawDevices = json["devices"] as? [String: [[String: Any]]] {
             runtimes = rawRunTimes.map({ iSimulator.Runtime(json: $0) })
             
+            let devices = rawDevices.reduce([String: [Device]]()) { (result, rawDevice) -> [String: [Device]] in
+                var updatedResult = result
+                updatedResult[rawDevice.key] = rawDevice.value.map({ iSimulator.Device(json: $0) })
+                return updatedResult
+            }
+            
+            var urlAndAppDicCache = [URL: Application]()
+            var sandboxURLsCache = Set<URL>()
             runtimes.forEach { runtime in
                 runtime.devices = devices[runtime.name] ?? devices[runtime.identifier] ?? []
                 
                 runtime.devices.forEach {
                     $0.runtime = runtime
                     $0.updateApps(with: appCache)
-                    $0.updateAppGroups(groupCache: groupCache)
+                    $0.updateAppGroups()
+                    
+                    $0.applications.forEach { app in
+                        app.removeLinkDir()
+                        urlAndAppDicCache[app.bundleDirUrl] = app
+                        sandboxURLsCache.insert(app.sandboxDirUrl)
+                    }
                 }
             }
             
-            runtimes.flatMap { $0.devices }.flatMap { $0.applications }.forEach { app in
-                urlAndAppDicCache[app.bundleDirUrl] = app
-                sandboxURLsCache.insert(app.sandboxDirUrl)
-                
-                self.appCache.urlAndAppDic.removeValue(forKey: app.bundleDirUrl)
-                self.appCache.sandboxURLs.remove(app.sandboxDirUrl)
-            }
+            self.appCache.urlAndAppDic = urlAndAppDicCache
+            self.appCache.sandboxURLs = sandboxURLsCache
         } else {
             runtimes = []
+            appCache.urlAndAppDic = [:]
+            appCache.sandboxURLs = []
         }
-        
-        let invalidApp = self.appCache.urlAndAppDic
+    }
+    
+    private func updateCache() {
+        appCache = ApplicationCache()
         DispatchQueue.main.async {
-            invalidApp.forEach { $0.value.removeLinkDir() }
+            let rootLinkURL = UserDefaults.standard.rootLinkURL
+            let contents = try? FileManager.default.contentsOfDirectory(at: rootLinkURL,
+                                                                        includingPropertiesForKeys: [.isHiddenKey],
+                                                                        options: [.skipsPackageDescendants, .skipsSubdirectoryDescendants])
+            contents?.filter({ $0.pathComponents.last == "Icon\r" }).forEach({ _ in try? FileManager.default.removeItem(at: rootLinkURL) })
+            try? FileManager.default.createDirectory(at: rootLinkURL, withIntermediateDirectories: true)
+            NSWorkspace.shared.setIcon(#imageLiteral(resourceName: "statusItem_icon"), forFile: rootLinkURL.path, options:[])
         }
-        
-        self.appCache.urlAndAppDic = urlAndAppDicCache
-        self.appCache.sandboxURLs = sandboxURLsCache
     }
 }
