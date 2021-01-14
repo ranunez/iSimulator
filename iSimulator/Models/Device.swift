@@ -24,8 +24,6 @@ final class Device {
     
     var appGroups: [AppGroup] = []
     
-    var pairs: [Device] = []
-    
     weak var runtime: Runtime!
     
     var dataURL: URL {
@@ -81,12 +79,15 @@ final class Device {
     }
     
     func erase() throws {
-        if self.state == .booted {
-            try? self.shutdown()
+        if state == .booted {
+            try? shutdown()
         }
-        var afterTime = 0.0
-        if self.state == .booted {
+        let afterTime: TimeInterval
+        switch state {
+        case .booted:
             afterTime = 0.3
+        case .shutdown:
+            afterTime = 0
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + afterTime) {
             shell("/usr/bin/xcrun", arguments: "simctl", "erase", self.udid)
@@ -97,24 +98,19 @@ final class Device {
         shell("/usr/bin/xcrun", arguments: "simctl", "delete", self.udid)
     }
     
-    func updateAppGroups(with cache: AppGroupCache) {
+    func updateAppGroups(groupCache: Set<AppGroup>) {
         let appGroupContents = (try? FileManager.default.contentsOfDirectory(at: appGroupURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])) ?? []
-        var appGroups: [AppGroup] = []
-        appGroupContents.enumerated().forEach { (offset, url) in
-            let group = cache.groups.first { (appGroup) -> Bool in
-                appGroup.fileURL == url
-            }
-            if let appGroup = group {
-                appGroups.append(appGroup)
+        
+        self.appGroups = appGroupContents.compactMap { url -> AppGroup? in
+            if let appGroup = groupCache.first(where: { $0.fileURL == url && !$0.id.contains("com.apple") }) {
+                return appGroup
+            } else if let id = identifier(with: url), !id.contains("com.apple") {
+                return AppGroup(fileURL: url, id: id)
             } else {
-                if let id = identifier(with: url) {
-                    let appGroup = AppGroup.init(fileURL: url, id: id)
-                    appGroups.append(appGroup)
-                }
+                return nil
             }
         }
-        appGroups = appGroups.filter { !$0.id.contains("com.apple") }
-        self.appGroups = appGroups
+        
         DispatchQueue.main.async {
             self.appGroups.forEach{ $0.createLinkDir(device: self) }
         }
@@ -125,27 +121,15 @@ final class Device {
         
         let sandboxContents = (try? FileManager.default.contentsOfDirectory(at: sandboxURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])) ?? []
         
-        var apps: [Application] = []
+        let newBundles = bundleContents.filter({ !cache.ignoreURLs.contains($0) })
         
-        
-        var newBundles = [URL]()
-        bundleContents.enumerated().forEach { (offset, url) in
-            if let app = cache.urlAndAppDic[url] {
-                app.device = self
-                apps.append(app)
-            } else if cache.ignoreURLs.contains(url) {
-                
-            } else {
-                newBundles.append(url)
-            }
+        var apps = bundleContents.compactMap { url -> Application? in
+            guard let app = cache.urlAndAppDic[url] else { return nil }
+            app.device = self
+            return app
         }
         
-        var newSandboxs = [URL]()
-        sandboxContents.forEach { url in
-            if !cache.sandboxURLs.contains(url) && !cache.ignoreURLs.contains(url) {
-                newSandboxs.append(url)
-            }
-        }
+        let newSandboxs = sandboxContents.filter({ !cache.sandboxURLs.contains($0) && !cache.ignoreURLs.contains($0) })
         
         let idAndBundleUrlDic = identifierAndUrl(with: newBundles)
         var idAndSandboxUrlDic = identifierAndUrl(with: newSandboxs)
@@ -154,16 +138,14 @@ final class Device {
             guard let sandboxDirUrl = idAndSandboxUrlDic.removeValue(forKey: bundleID) else {
                 return
             }
-            if let app = Application(bundleID: bundleID, bundleDirUrl: bundleDirUrl, sandboxDirUrl: sandboxDirUrl){
+            if let app = Application(bundleID: bundleID, bundleDirUrl: bundleDirUrl, sandboxDirUrl: sandboxDirUrl) {
                 app.device = self
                 apps.append(app)
             } else {
                 cache.ignoreURLs.insert(bundleDirUrl)
             }
         }
-        idAndSandboxUrlDic.forEach({ (_, url) in
-            cache.ignoreURLs.insert(url)
-        })
+        idAndSandboxUrlDic.forEach({ cache.ignoreURLs.insert($0.value) })
         self.applications = apps
         
         DispatchQueue.main.async {
@@ -172,20 +154,18 @@ final class Device {
     }
     
     private func identifierAndUrl(with urls: [URL]) -> [String: URL] {
-        var dic: [String: URL] = [:]
-        urls.forEach { (url) in
-            if let identifier = self.identifier(with: url) {
-                dic[identifier] = url
-            }
+        return urls.reduce([String: URL]()) { (result, url) -> [String: URL] in
+            guard let identifier = self.identifier(with: url) else { return result }
+            var updatedResult = result
+            updatedResult[identifier] = url
+            return updatedResult
         }
-        return dic
     }
     
     private func identifier(with url: URL) -> String? {
-        if let contents = NSDictionary(contentsOf: url.appendingPathComponent(".com.apple.mobile_container_manager.metadata.plist")),
-            let identifier = contents["MCMMetadataIdentifier"] as? String {
-            return identifier
-        }
-        return nil
+        let plistURL = url.appendingPathComponent(".com.apple.mobile_container_manager.metadata.plist")
+        guard let contents = NSDictionary(contentsOf: plistURL) else { return nil }
+        guard let identifier = contents["MCMMetadataIdentifier"] as? String else { return nil }
+        return identifier
     }
 }

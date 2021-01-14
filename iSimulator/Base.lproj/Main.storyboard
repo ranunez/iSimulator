@@ -662,12 +662,12 @@
         <!--Window Controller-->
         <scene sceneID="P9e-Zi-kDu">
             <objects>
-                <windowController storyboardIdentifier="Preferences" id="THI-BN-Wc3" customClass="PreferencesWindowController" customModule="iSimulator" customModuleProvider="target" sceneMemberID="viewController">
+                <windowController storyboardIdentifier="Preferences" id="THI-BN-Wc3" sceneMemberID="viewController">
                     <window key="window" title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" frameAutosaveName="" animationBehavior="default" id="zeb-p6-tfc">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
                         <windowPositionMask key="initialPositionMask" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="0.0" y="466" width="480" height="270"/>
-                        <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+                        <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1440"/>
                         <toolbar key="toolbar" implicitIdentifier="4BA60621-F1D4-49DF-813E-B6E430514644" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="Odm-yx-S70">
                             <allowedToolbarItems/>
                             <defaultToolbarItems/>
@@ -677,7 +677,6 @@
                         </connections>
                     </window>
                     <connections>
-                        <outlet property="toolBar" destination="Odm-yx-S70" id="yx1-ir-nRT"/>
                         <segue destination="DTO-21-MCy" kind="relationship" relationship="window.shadowedContentViewController" id="KjS-IF-f95"/>
                     </connections>
                 </windowController>
@@ -782,7 +781,6 @@
                     </view>
                     <connections>
                         <outlet property="pathTextField" destination="PdT-zi-aJi" id="2u5-qP-Xv1"/>
-                        <outlet property="tabView" destination="CHe-bh-P1z" id="V1l-yP-jWj"/>
                     </connections>
                 </viewController>
                 <customObject id="Bss-vi-chO" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

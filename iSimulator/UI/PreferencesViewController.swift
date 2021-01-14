@@ -9,30 +9,26 @@
 import Cocoa
 
 final class PreferencesViewController: NSViewController {
-    @IBOutlet weak var tabView: NSTabView!
-    @IBOutlet weak var pathTextField: NSTextField!
+    @IBOutlet private weak var pathTextField: NSTextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.pathTextField.stringValue = RootLink.url.path
     }
     
-    @IBAction func changePath(_ sender: Any) {
+    @IBAction private func changePath(_ sender: Any) {
         let panel = NSOpenPanel()
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
         panel.begin { resp in
-            if resp.rawValue == NSFileHandlingPanelCancelButton {
-                return
-            }
-            if let url = panel.url {
-                self.changePathAlert(path: url.path)
-            }
+            guard resp != .cancel else { return }
+            guard let url = panel.url else { return }
+            self.changePathAlert(path: url.path)
         }
     }
     
-    @IBAction func openPath(_ sender: Any) {
+    @IBAction private func openPath(_ sender: Any) {
         NSWorkspace.shared.open(RootLink.url)
     }
     
@@ -44,15 +40,13 @@ final class PreferencesViewController: NSViewController {
         alert.addButton(withTitle: "Done")
         alert.addButton(withTitle: "Cancel")
         NSApp.activate(ignoringOtherApps: true)
-        alert.beginSheetModal(for: self.view.window!) { (response) in
-            if response == NSApplication.ModalResponse.alertFirstButtonReturn {
-                RootLink.update(with: path, finish: { (errorStr) in
-                    if let error = errorStr {
-                        self.changePathErrorAlert(error: error)
-                        return
-                    }
-                    self.pathTextField.stringValue = RootLink.url.path
-                })
+        alert.beginSheetModal(for: self.view.window!) { response in
+            if response == .alertFirstButtonReturn {
+                if let error = RootLink.update(with: path) {
+                    self.changePathErrorAlert(error: error)
+                    return
+                }
+                self.pathTextField.stringValue = RootLink.url.path
             }
         }
     }

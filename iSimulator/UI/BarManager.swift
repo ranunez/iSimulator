@@ -15,25 +15,22 @@ final class BarManager {
     private let menu = NSMenu()
     private var watch: SKQueue?
     private var refreshTask: DispatchWorkItem?
-    private var preferenceWindowController: NSWindowController?
     
     private init() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem.image = #imageLiteral(resourceName: "statusItem_icon")
-        statusItem.image?.isTemplate = true
+        statusItem.button?.image = #imageLiteral(resourceName: "statusItem_icon")
+        statusItem.button?.image?.isTemplate = true
         statusItem.menu = menu
-        addWatch()
-        refresh()
-        self.commonItems.forEach({ (item) in
-            self.menu.addItem(item)
-        })
-    }
-    
-    private func addWatch() {
         watch = SKQueue({ [weak self] (noti, _) in
             if noti.contains(.Write) && noti.contains(.SizeIncrease) {
                 self?.refresh()
             }
+        })
+        
+        refresh()
+        
+        self.commonItems.forEach({ (item) in
+            self.menu.addItem(item)
         })
     }
     
@@ -82,9 +79,9 @@ final class BarManager {
                     self.watch?.addPath(device.bundleURL.path)
                 }
                 let deviceItem = DeviceMenuItem(device)
-                if deviceItem.isEmptyApp {
+                if !device.applications.isEmpty {
                     hasAppDeviceItems.append(deviceItem)
-                }else{
+                } else{
                     emptyAppDeviceItems.append(deviceItem)
                 }
             })
@@ -94,7 +91,7 @@ final class BarManager {
                 hasAppDeviceItems.insert(titleItem, at: 0)
                 hasAppDeviceItemDic[r.name] = hasAppDeviceItems
             }
-            if !emptyAppDeviceItems.isEmpty{
+            if !emptyAppDeviceItems.isEmpty {
                 let titleItem = NSMenuItem(title: r.name, action: nil, keyEquivalent: "")
                 titleItem.isEnabled = false
                 emptyAppDeviceItems.insert(titleItem, at: 0)
@@ -121,17 +118,16 @@ final class BarManager {
     }
     
     private lazy var commonItems: [NSMenuItem] = {
-        var items: [NSMenuItem] = []
         let preMenu = NSMenuItem(title: "Preferences...", action: #selector(preference(_:)), keyEquivalent: ",")
         preMenu.target = self
-        items.append(preMenu)
+        
         let refreshMenu = NSMenuItem(title: "Refresh", action: #selector(refresh(_:)), keyEquivalent: "r")
         refreshMenu.target = self
-        items.append(refreshMenu)
+        
         let quitMenu = NSMenuItem(title: "Quit", action: #selector(quitApp(_:)), keyEquivalent: "q")
         quitMenu.target = self
-        items.append(quitMenu)
-        return items
+        
+        return [preMenu, refreshMenu, quitMenu]
     }()
     
     @objc private func refresh(_ sender: Any) {
@@ -144,11 +140,11 @@ final class BarManager {
     }
     
     @objc private func preference(_ sender: NSMenuItem) {
-        if let controller = preferenceWindowController {
-            controller.close()
-            preferenceWindowController = nil
+        if let existingPreferencesWindow = NSApplication.shared.windows.first(where: { $0.contentViewController is PreferencesViewController }) {
+            existingPreferencesWindow.close()
         }
-        preferenceWindowController = NSStoryboard(name: "Main", bundle: nil).instantiateController(withIdentifier: "Preferences") as? NSWindowController
+        
+        let preferenceWindowController = NSStoryboard(name: "Main", bundle: nil).instantiateController(withIdentifier: "Preferences") as? NSWindowController
         NSApp.activate(ignoringOtherApps: true)
         preferenceWindowController?.window?.makeKeyAndOrderFront(NSApplication.shared)
     }

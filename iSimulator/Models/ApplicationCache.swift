@@ -9,7 +9,6 @@
 import Foundation
 
 final class ApplicationCache {
-
     var urlAndAppDic: [URL: Application] = [:]
     
     var sandboxURLs: Set<URL> = []
@@ -19,8 +18,4 @@ final class ApplicationCache {
     init() {
         
     }
-}
-
-final class AppGroupCache {
-    var groups: Set<AppGroup> = []
 }

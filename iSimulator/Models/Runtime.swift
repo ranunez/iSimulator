@@ -9,17 +9,10 @@
 import Foundation
 
 final class Runtime {
-    enum OSType: String {
-        case iOS, tvOS, watchOS, None
-    }
-    
     let name: String
     let identifier: String
-    let osType: OSType
     
-    var devices: [Device] = []
-    
-    var devicetypes: [DeviceType] = []
+    var devices = [Device]()
     
     init(json: [String: Any]) {
         guard let name = json["name"] as? String else {
@@ -31,15 +24,5 @@ final class Runtime {
         
         self.name = name
         self.identifier = identifier
-        
-        if name.contains("iOS") {
-            osType = .iOS
-        } else if name.contains("tvOS") {
-            osType = .tvOS
-        } else if name.contains("watchOS") {
-            osType = .watchOS
-        } else {
-            osType = .None
-        }
     }
 }

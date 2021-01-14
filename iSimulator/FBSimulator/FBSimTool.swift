@@ -13,7 +13,8 @@ final class FBSimTool {
     static let `default` = FBSimTool()
     
     private var allSimulators: [FBSimulator] {
-        return self.control?.set.allSimulators ?? []
+        guard let control = control else { return [] }
+        return control.set.allSimulators
     }
     
     private let control: FBSimulatorControl? = {

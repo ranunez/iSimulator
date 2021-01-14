@@ -10,13 +10,10 @@
 		2905C3801FDA5FA700DD50B1 /* FBSimTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2905C37B1FDA5FA700DD50B1 /* FBSimTool.swift */; };
 		291157AE1FB5501C000EE94F /* DevcieMenuItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 291157AD1FB5501C000EE94F /* DevcieMenuItem.swift */; };
 		29157C551F4D56400069BDB6 /* Shell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C541F4D56400069BDB6 /* Shell.swift */; };
-		29157C5A1F4D65D70069BDB6 /* DeviceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C591F4D65D70069BDB6 /* DeviceType.swift */; };
 		29157C5C1F4D66110069BDB6 /* Runtime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C5B1F4D66110069BDB6 /* Runtime.swift */; };
 		29157C5E1F4D66220069BDB6 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C5D1F4D66220069BDB6 /* Device.swift */; };
 		29157C601F4D6BFE0069BDB6 /* TotalModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C5F1F4D6BFE0069BDB6 /* TotalModel.swift */; };
 		29157C621F4D7EB90069BDB6 /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C611F4D7EB90069BDB6 /* Application.swift */; };
-		29157C681F4E7C9B0069BDB6 /* AppMenuItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C671F4E7C9B0069BDB6 /* AppMenuItem.swift */; };
-		291B421B1FBD75B500795FD4 /* PreferencesWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 291B421A1FBD75B500795FD4 /* PreferencesWindowController.swift */; };
 		292EADA41F458B3D009FC1ED /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292EADA31F458B3D009FC1ED /* AppDelegate.swift */; };
 		292EADA81F458B3D009FC1ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 292EADA71F458B3D009FC1ED /* Assets.xcassets */; };
 		292EADAB1F458B3D009FC1ED /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 292EADA91F458B3D009FC1ED /* Main.storyboard */; };
@@ -34,8 +31,6 @@
 		8C4DE1F225AF6DBA006A474C /* FBControlCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338621A7F5FE004ADEE3 /* FBControlCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8C4DE1F625AF6E13006A474C /* FBSimulatorControl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338721A7F5FE004ADEE3 /* FBSimulatorControl.framework */; };
 		8C4DE1F725AF6E13006A474C /* FBSimulatorControl.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3198338721A7F5FE004ADEE3 /* FBSimulatorControl.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		8C4DE22B25AF83C5006A474C /* AppActionable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4DE22A25AF83C5006A474C /* AppActionable.swift */; };
-		8C4DE22D25AF86C2006A474C /* DeviceActionable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4DE22C25AF86C2006A474C /* DeviceActionable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -57,13 +52,10 @@
 		2905C37B1FDA5FA700DD50B1 /* FBSimTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FBSimTool.swift; sourceTree = "<group>"; };
 		291157AD1FB5501C000EE94F /* DevcieMenuItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevcieMenuItem.swift; sourceTree = "<group>"; };
 		29157C541F4D56400069BDB6 /* Shell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Shell.swift; sourceTree = "<group>"; };
-		29157C591F4D65D70069BDB6 /* DeviceType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceType.swift; sourceTree = "<group>"; };
 		29157C5B1F4D66110069BDB6 /* Runtime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Runtime.swift; sourceTree = "<group>"; };
 		29157C5D1F4D66220069BDB6 /* Device.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		29157C5F1F4D6BFE0069BDB6 /* TotalModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TotalModel.swift; sourceTree = "<group>"; };
 		29157C611F4D7EB90069BDB6 /* Application.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Application.swift; sourceTree = "<group>"; };
-		29157C671F4E7C9B0069BDB6 /* AppMenuItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMenuItem.swift; sourceTree = "<group>"; };
-		291B421A1FBD75B500795FD4 /* PreferencesWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesWindowController.swift; sourceTree = "<group>"; };
 		292EADA01F458B3D009FC1ED /* iSimulator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iSimulator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		292EADA31F458B3D009FC1ED /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		292EADA71F458B3D009FC1ED /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -83,8 +75,6 @@
 		3198338721A7F5FE004ADEE3 /* FBSimulatorControl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSimulatorControl.framework; path = Carthage/Build/Mac/FBSimulatorControl.framework; sourceTree = "<group>"; };
 		31CD6D0121B2817900E49DC0 /* RootLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootLink.swift; sourceTree = "<group>"; };
 		31CD6D0321B2942300E49DC0 /* ApplicationCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCache.swift; sourceTree = "<group>"; };
-		8C4DE22A25AF83C5006A474C /* AppActionable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppActionable.swift; sourceTree = "<group>"; };
-		8C4DE22C25AF86C2006A474C /* DeviceActionable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceActionable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,7 +114,6 @@
 			children = (
 				29157C5F1F4D6BFE0069BDB6 /* TotalModel.swift */,
 				29157C5B1F4D66110069BDB6 /* Runtime.swift */,
-				29157C591F4D65D70069BDB6 /* DeviceType.swift */,
 				29157C5D1F4D66220069BDB6 /* Device.swift */,
 				29157C611F4D7EB90069BDB6 /* Application.swift */,
 				315A809C22C90616005C2493 /* AppGroup.swift */,
@@ -171,12 +160,8 @@
 			isa = PBXGroup;
 			children = (
 				292EADB51F458F5C009FC1ED /* BarManager.swift */,
-				29157C671F4E7C9B0069BDB6 /* AppMenuItem.swift */,
 				293B2D411F4EA26B0009DA18 /* AppMenu.swift */,
-				8C4DE22A25AF83C5006A474C /* AppActionable.swift */,
 				291157AD1FB5501C000EE94F /* DevcieMenuItem.swift */,
-				8C4DE22C25AF86C2006A474C /* DeviceActionable.swift */,
-				291B421A1FBD75B500795FD4 /* PreferencesWindowController.swift */,
 				29B227B91FBD7B9F00BDE5BF /* PreferencesViewController.swift */,
 			);
 			path = UI;
@@ -277,11 +262,7 @@
 				29157C601F4D6BFE0069BDB6 /* TotalModel.swift in Sources */,
 				293B2D401F4E9FF00009DA18 /* NSImage+Extension.swift in Sources */,
 				293B2D421F4EA26B0009DA18 /* AppMenu.swift in Sources */,
-				29157C5A1F4D65D70069BDB6 /* DeviceType.swift in Sources */,
-				291B421B1FBD75B500795FD4 /* PreferencesWindowController.swift in Sources */,
-				8C4DE22D25AF86C2006A474C /* DeviceActionable.swift in Sources */,
 				2905C3801FDA5FA700DD50B1 /* FBSimTool.swift in Sources */,
-				29157C681F4E7C9B0069BDB6 /* AppMenuItem.swift in Sources */,
 				29157C551F4D56400069BDB6 /* Shell.swift in Sources */,
 				292EADA41F458B3D009FC1ED /* AppDelegate.swift in Sources */,
 				29157C5C1F4D66110069BDB6 /* Runtime.swift in Sources */,
@@ -290,7 +271,6 @@
 				29157C5E1F4D66220069BDB6 /* Device.swift in Sources */,
 				291157AE1FB5501C000EE94F /* DevcieMenuItem.swift in Sources */,
 				31CD6D0421B2942300E49DC0 /* ApplicationCache.swift in Sources */,
-				8C4DE22B25AF83C5006A474C /* AppActionable.swift in Sources */,
 				29B591981F581513006CDEC0 /* FileWatch.swift in Sources */,
 				315A809D22C90616005C2493 /* AppGroup.swift in Sources */,
 				292EADB61F458F5C009FC1ED /* BarManager.swift in Sources */,
