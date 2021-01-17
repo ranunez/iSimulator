@@ -9,7 +9,6 @@
 import Cocoa
 
 final class BarManager {
-    static let `default` = BarManager()
     private let queue = DispatchQueue(label: "iSimulator.update.queue")
     private let statusItem: NSStatusItem
     private let menu = NSMenu()
@@ -19,7 +18,7 @@ final class BarManager {
     private var watch: SKQueue?
     private var refreshTask: DispatchWorkItem?
     
-    private init() {
+    init() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.button?.image = #imageLiteral(resourceName: "statusItem_icon")
         statusItem.button?.image?.isTemplate = true
