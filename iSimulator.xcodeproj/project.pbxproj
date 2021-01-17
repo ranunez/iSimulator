@@ -11,7 +11,6 @@
 		29157C551F4D56400069BDB6 /* Shell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C541F4D56400069BDB6 /* Shell.swift */; };
 		29157C5C1F4D66110069BDB6 /* Runtime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C5B1F4D66110069BDB6 /* Runtime.swift */; };
 		29157C5E1F4D66220069BDB6 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C5D1F4D66220069BDB6 /* Device.swift */; };
-		29157C601F4D6BFE0069BDB6 /* TotalModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C5F1F4D6BFE0069BDB6 /* TotalModel.swift */; };
 		29157C621F4D7EB90069BDB6 /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157C611F4D7EB90069BDB6 /* Application.swift */; };
 		292EADA41F458B3D009FC1ED /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292EADA31F458B3D009FC1ED /* AppDelegate.swift */; };
 		292EADA81F458B3D009FC1ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 292EADA71F458B3D009FC1ED /* Assets.xcassets */; };
@@ -29,7 +28,6 @@
 		29157C541F4D56400069BDB6 /* Shell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Shell.swift; sourceTree = "<group>"; };
 		29157C5B1F4D66110069BDB6 /* Runtime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Runtime.swift; sourceTree = "<group>"; };
 		29157C5D1F4D66220069BDB6 /* Device.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
-		29157C5F1F4D6BFE0069BDB6 /* TotalModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TotalModel.swift; sourceTree = "<group>"; };
 		29157C611F4D7EB90069BDB6 /* Application.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Application.swift; sourceTree = "<group>"; };
 		292EADA01F458B3D009FC1ED /* iSimulator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iSimulator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		292EADA31F458B3D009FC1ED /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -68,7 +66,6 @@
 		29157C581F4D62940069BDB6 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				29157C5F1F4D6BFE0069BDB6 /* TotalModel.swift */,
 				29157C5B1F4D66110069BDB6 /* Runtime.swift */,
 				29157C5D1F4D66220069BDB6 /* Device.swift */,
 				29157C611F4D7EB90069BDB6 /* Application.swift */,
@@ -204,7 +201,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				29157C621F4D7EB90069BDB6 /* Application.swift in Sources */,
-				29157C601F4D6BFE0069BDB6 /* TotalModel.swift in Sources */,
 				293B2D421F4EA26B0009DA18 /* AppMenu.swift in Sources */,
 				29157C551F4D56400069BDB6 /* Shell.swift in Sources */,
 				292EADA41F458B3D009FC1ED /* AppDelegate.swift in Sources */,

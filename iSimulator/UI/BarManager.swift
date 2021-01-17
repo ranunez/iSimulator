@@ -13,6 +13,9 @@ final class BarManager {
     private let queue = DispatchQueue(label: "iSimulator.update.queue")
     private let statusItem: NSStatusItem
     private let menu = NSMenu()
+    private var lastXcodePath = ""
+    private var appCache = ApplicationCache()
+    private var runtimes: [Runtime] = []
     private var watch: SKQueue?
     private var refreshTask: DispatchWorkItem?
     
@@ -41,12 +44,13 @@ final class BarManager {
             
             self.watch?.removeAllPaths()
             self.watch?.addPath(Device.url.path)
+            self.update(isForceUpdate: isForceUpdate)
+            
             var items: [NSMenuItem] = []
             var hasAppDeviceItemDic: [String: [NSMenuItem]] = [:]
             var emptyAppDeviceItemDic: [String: [NSMenuItem]] = [:]
-            TotalModel.default.update(isForceUpdate: isForceUpdate)
             
-            TotalModel.default.runtimes.forEach { r in
+            self.runtimes.forEach { r in
                 var hasAppDeviceItems: [NSMenuItem] = []
                 var emptyAppDeviceItems: [NSMenuItem] = []
                 let devices = r.devices
@@ -75,7 +79,7 @@ final class BarManager {
                     emptyAppDeviceItemDic[r.name] = emptyAppDeviceItems
                 }
             }
-            let deviceInfoURLPath: [String] = TotalModel.default.runtimes.flatMap({ $0.devices }).compactMap({ $0.infoURL.path })
+            let deviceInfoURLPath: [String] = self.runtimes.flatMap({ $0.devices }).compactMap({ $0.infoURL.path })
             DispatchQueue.main.async {
                 _ = try? FileWatch(paths: deviceInfoURLPath, eventHandler: { [weak self] eventFlag in
                     if eventFlag.contains(.ItemIsFile) && eventFlag.contains(.ItemRenamed) {
@@ -142,5 +146,68 @@ final class BarManager {
         let preferenceWindowController = NSStoryboard(name: "Main", bundle: nil).instantiateController(withIdentifier: "Preferences") as? NSWindowController
         NSApp.activate(ignoringOtherApps: true)
         preferenceWindowController?.window?.makeKeyAndOrderFront(NSApplication.shared)
+    }
+    
+    func update(isForceUpdate: Bool) {
+        let xcodePathData = xcrun(arguments: "xcode-select", "-p")
+        if let xcodePath = String(data: xcodePathData, encoding: .utf8), lastXcodePath != xcodePath {
+            lastXcodePath = xcodePath
+            updateCache()
+        }
+        if isForceUpdate {
+            updateCache()
+        }
+        let jsonData = xcrun(arguments: "simctl", "list", "-j")
+        guard let json = try? JSONSerialization.jsonObject(with: jsonData, options: .allowFragments) as? [String: Any] else {
+            fatalError()
+        }
+        
+        if let rawRunTimes = json["runtimes"] as? [[String: Any]], let rawDevices = json["devices"] as? [String: [[String: Any]]] {
+            runtimes = rawRunTimes.map({ iSimulator.Runtime(json: $0) })
+            
+            let devices = rawDevices.reduce([String: [Device]]()) { (result, rawDevice) -> [String: [Device]] in
+                var updatedResult = result
+                updatedResult[rawDevice.key] = rawDevice.value.map({ iSimulator.Device(json: $0) })
+                return updatedResult
+            }
+            
+            var urlAndAppDicCache = [URL: Application]()
+            var sandboxURLsCache = Set<URL>()
+            runtimes.forEach { runtime in
+                runtime.devices = devices[runtime.name] ?? devices[runtime.identifier] ?? []
+                
+                runtime.devices.forEach {
+                    $0.runtime = runtime
+                    $0.updateApps(with: appCache)
+                    $0.updateAppGroups()
+                    
+                    $0.applications.forEach { app in
+                        app.removeLinkDir()
+                        urlAndAppDicCache[app.bundleDirUrl] = app
+                        sandboxURLsCache.insert(app.sandboxDirUrl)
+                    }
+                }
+            }
+            
+            self.appCache.urlAndAppDic = urlAndAppDicCache
+            self.appCache.sandboxURLs = sandboxURLsCache
+        } else {
+            runtimes = []
+            appCache.urlAndAppDic = [:]
+            appCache.sandboxURLs = []
+        }
+    }
+    
+    private func updateCache() {
+        appCache = ApplicationCache()
+        DispatchQueue.main.async {
+            let rootLinkURL = UserDefaults.standard.rootLinkURL
+            let contents = try? FileManager.default.contentsOfDirectory(at: rootLinkURL,
+                                                                        includingPropertiesForKeys: [.isHiddenKey],
+                                                                        options: [.skipsPackageDescendants, .skipsSubdirectoryDescendants])
+            contents?.filter({ $0.pathComponents.last == "Icon\r" }).forEach({ _ in try? FileManager.default.removeItem(at: rootLinkURL) })
+            try? FileManager.default.createDirectory(at: rootLinkURL, withIntermediateDirectories: true)
+            NSWorkspace.shared.setIcon(#imageLiteral(resourceName: "statusItem_icon"), forFile: rootLinkURL.path, options:[])
+        }
     }
 }
