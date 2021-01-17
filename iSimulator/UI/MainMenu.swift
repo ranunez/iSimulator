@@ -8,10 +8,7 @@
 
 import Cocoa
 
-final class BarManager {
-    private let queue = DispatchQueue(label: "iSimulator.update.queue")
-    private let statusItem: NSStatusItem
-    private let menu = NSMenu()
+final class MainMenu: NSMenu {
     private var lastXcodePath = ""
     private var appCache = ApplicationCache()
     private var runtimes: [Runtime] = []
@@ -19,10 +16,7 @@ final class BarManager {
     private var refreshTask: DispatchWorkItem?
     
     init() {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem.button?.image = #imageLiteral(resourceName: "statusItem_icon")
-        statusItem.button?.image?.isTemplate = true
-        statusItem.menu = menu
+        super.init(title: "")
         watchQueue = SKQueue({ [weak self] (noti, _) in
             if noti.contains(.Write) && noti.contains(.SizeIncrease) {
                 self?.refresh(isForceUpdate: false)
@@ -32,8 +26,12 @@ final class BarManager {
         refresh(isForceUpdate: false)
         
         self.commonItems.forEach({ (item) in
-            self.menu.addItem(item)
+            self.addItem(item)
         })
+    }
+    
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func refresh(isForceUpdate: Bool) {
@@ -160,12 +158,12 @@ final class BarManager {
             deviceItems.append(contentsOf: self.commonItems)
             
             DispatchQueue.main.async {
-                self.menu.removeAllItems()
-                deviceItems.forEach { self.menu.addItem($0) }
+                self.removeAllItems()
+                deviceItems.forEach { self.addItem($0) }
             }
         }
         self.refreshTask = task
-        self.queue.asyncAfter(deadline: .now() + 0.75, execute: task)
+        DispatchQueue(label: "iSimulator.update.queue").asyncAfter(deadline: .now() + 0.75, execute: task)
     }
     
     private lazy var commonItems: [NSMenuItem] = {

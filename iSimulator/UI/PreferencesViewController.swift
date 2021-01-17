@@ -34,7 +34,7 @@ final class PreferencesViewController: NSViewController {
     
     private func changePathAlert(updatedURL: URL) {
         let alert: NSAlert = NSAlert()
-        alert.messageText = String(format: "Are you sure you want to change data path?")
+        alert.messageText = "Are you sure you want to change data path?"
         alert.informativeText = "The iSimulator folder will be moved to the new location."
         alert.alertStyle = .critical
         alert.addButton(withTitle: "Done")
@@ -59,7 +59,7 @@ final class PreferencesViewController: NSViewController {
     
     private func changePathErrorAlert(error: String) {
         let alert: NSAlert = NSAlert()
-        alert.messageText = String(format: "Change data path failed!")
+        alert.messageText = "Change data path failed!"
         alert.informativeText = error
         alert.alertStyle = .critical
         alert.addButton(withTitle: "Done")

@@ -10,5 +10,11 @@ import Cocoa
 
 @NSApplicationMain
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private let barManager = BarManager()
+    private let statusItem: NSStatusItem = {
+        let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        statusItem.button?.image = NSImage(named: "statusItem_icon")
+        statusItem.button?.image?.isTemplate = true
+        statusItem.menu = MainMenu()
+        return statusItem
+    }()
 }
