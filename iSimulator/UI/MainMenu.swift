@@ -69,18 +69,11 @@ final class MainMenu: NSMenu {
                 
                 switch xcrun(arguments: "simctl", "list", "-j") {
                 case .success(let jsonData):
-                    guard let json = try? JSONSerialization.jsonObject(with: jsonData, options: .allowFragments) as? [String: Any] else {
-                        fatalError()
-                    }
-                    
-                    if let rawRunTimes = json["runtimes"] as? [[String: Any]], let rawDevices = json["devices"] as? [String: [[String: Any]]] {
-                        self.runtimes = rawRunTimes.map({ iSimulator.Runtime(json: $0) })
+                    let decoder = JSONDecoder()
+                    if let deviceList = try? decoder.decode(DeviceList.self, from: jsonData) {
+                        self.runtimes = deviceList.runtimes
                         
-                        let devices = rawDevices.reduce([String: [Device]]()) { (result, rawDevice) -> [String: [Device]] in
-                            var updatedResult = result
-                            updatedResult[rawDevice.key] = rawDevice.value.map({ iSimulator.Device(json: $0) })
-                            return updatedResult
-                        }
+                        let devices = deviceList.devices
                         
                         var urlAndAppDicCache = [URL: Application]()
                         var sandboxURLsCache = Set<URL>()
@@ -90,7 +83,7 @@ final class MainMenu: NSMenu {
                             runtime.devices.forEach {
                                 $0.runtime = runtime
                                 $0.updateApps(with: self.appCache)
-                                $0.updateAppGroups()
+                                $0.updateAppGroups(runtime: runtime)
                                 
                                 $0.applications.forEach { app in
                                     app.removeLinkDir()

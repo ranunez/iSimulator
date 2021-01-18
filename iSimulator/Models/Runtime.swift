@@ -8,21 +8,20 @@
 
 import Foundation
 
-final class Runtime {
+final class Runtime: Decodable {
     let name: String
     let identifier: String
     
     var devices = [Device]()
     
-    init(json: [String: Any]) {
-        guard let name = json["name"] as? String else {
-            fatalError()
-        }
-        guard let identifier = json["identifier"] as? String else {
-            fatalError()
-        }
-        
-        self.name = name
-        self.identifier = identifier
+    private enum CodingKeys: CodingKey {
+        case name
+        case identifier
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        name = try container.decode(String.self, forKey: .name)
+        identifier = try container.decode(String.self, forKey: .identifier)
     }
 }

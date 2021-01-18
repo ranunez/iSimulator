@@ -8,8 +8,8 @@
 
 import Foundation
 
-final class Device {
-    enum State: String {
+final class Device: Decodable {
+    enum State: String, Decodable {
         case booted = "Booted"
         case shutdown = "Shutdown"
     }
@@ -44,29 +44,23 @@ final class Device {
         return Device.url.appendingPathComponent("\(self.udid)/device.plist")
     }
     
-    init(json: [String: Any]) {
-        guard let rawState = json["state"] as? String else {
-            fatalError()
-        }
-        guard let state = State(rawValue: rawState) else {
-            fatalError()
-        }
-        guard let name = json["name"] as? String else {
-            fatalError()
-        }
-        guard let udid = json["udid"] as? String else {
-            fatalError()
-        }
-        
-        self.state = state
-        self.name = name
-        self.udid = udid
-    }
-    
     static let url: URL = {
         let userLibraryURL = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first!
         return userLibraryURL.appendingPathComponent("Developer/CoreSimulator/Devices")
     }()
+    
+    private enum CodingKeys: CodingKey {
+        case state
+        case name
+        case udid
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        state = try container.decode(State.self, forKey: .state)
+        name = try container.decode(String.self, forKey: .name)
+        udid = try container.decode(String.self, forKey: .udid)
+    }
     
     func boot() throws {
         xcrun(arguments: "simctl", "boot", udid)
@@ -96,7 +90,7 @@ final class Device {
         xcrun(arguments: "simctl", "delete", udid)
     }
     
-    func updateAppGroups() {
+    func updateAppGroups(runtime: Runtime) {
         let appGroupContents = try? FileManager.default.contentsOfDirectory(at: appGroupURL,
                                                                             includingPropertiesForKeys: [.isDirectoryKey],
                                                                             options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])
