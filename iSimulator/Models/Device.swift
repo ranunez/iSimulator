@@ -163,8 +163,7 @@ final class Device: Decodable {
             guard let sandboxDirUrl = idAndSandboxUrlDic.removeValue(forKey: bundleID) else {
                 return
             }
-            if let app = Application(bundleID: bundleID, bundleDirUrl: bundleDirUrl, sandboxDirUrl: sandboxDirUrl) {
-                app.device = self
+            if let app = Application(bundleID: bundleID, bundleDirUrl: bundleDirUrl, sandboxDirUrl: sandboxDirUrl, device: self) {
                 app.createLinkDir()
                 apps.append(app)
             } else {

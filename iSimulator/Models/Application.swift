@@ -32,10 +32,11 @@ final class Application {
         return att
     }()
     
-    init?(bundleID: String, bundleDirUrl: URL, sandboxDirUrl: URL) {
+    init?(bundleID: String, bundleDirUrl: URL, sandboxDirUrl: URL, device: Device) {
         self.bundleID = bundleID
         self.bundleDirUrl = bundleDirUrl
         self.sandboxDirUrl = sandboxDirUrl
+        self.device = device
         
         guard let contents = try? FileManager.default.contentsOfDirectory(at: bundleDirUrl,
                                                                           includingPropertiesForKeys: nil,
