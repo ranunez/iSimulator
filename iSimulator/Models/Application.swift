@@ -19,8 +19,6 @@ final class Application {
     let image: NSImage
     private let originImage: NSImage
     
-    private weak var device: Device!
-    
     private(set) var linkURL: URL?
     
     lazy private(set) var attributeStr: NSMutableAttributedString = {
@@ -36,7 +34,6 @@ final class Application {
         self.bundleID = bundleID
         self.bundleDirUrl = bundleDirUrl
         self.sandboxDirUrl = sandboxDirUrl
-        self.device = device
         
         guard let contents = try? FileManager.default.contentsOfDirectory(at: bundleDirUrl,
                                                                           includingPropertiesForKeys: nil,
@@ -80,7 +77,7 @@ final class Application {
         }
     }
     
-    func launch() {
+    func launch(device: Device) {
         if device.state == .shutdown {
             switch device.boot() {
             case .success:
@@ -92,12 +89,12 @@ final class Application {
         xcrun(arguments: "simctl", "launch", device.udid, bundleID)
     }
     
-    func terminate() {
+    func terminate(device: Device) {
         xcrun(arguments: "simctl", "terminate", device.udid, bundleID)
     }
     
-    func uninstall() {
-        self.terminate()
+    func uninstall(device: Device) {
+        self.terminate(device: device)
         xcrun(arguments: "simctl", "uninstall", device.udid, bundleID)
     }
     
@@ -110,7 +107,7 @@ final class Application {
         })
     }
     
-    func createLinkDir() {
+    func createLinkDir(device: Device) {
         guard linkURL == nil else { return }
         var url = UserDefaults.standard.rootLinkURL
         url.appendPathComponent(device.runtime.name)

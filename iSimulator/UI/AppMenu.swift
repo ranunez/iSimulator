@@ -62,11 +62,11 @@ final class AppMenu: NSMenu {
     }
     
     @objc private func launchAction() {
-        app.launch()
+        app.launch(device: device)
     }
     
     @objc private func terminateAction() {
-        app.terminate()
+        app.terminate(device: device)
     }
     
     @objc private func resetAction() {
@@ -93,7 +93,7 @@ final class AppMenu: NSMenu {
         NSApp.activate(ignoringOtherApps: true)
         let response = alert.runModal()
         if response == NSApplication.ModalResponse.alertFirstButtonReturn {
-            app.uninstall()
+            app.uninstall(device: device)
         }
     }
 }

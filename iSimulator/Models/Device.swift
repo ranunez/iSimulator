@@ -149,7 +149,7 @@ final class Device: Decodable {
         
         var apps = bundleContents.compactMap { url -> Application? in
             guard let app = cache.urlAndAppDic[url] else { return nil }
-            app.createLinkDir()
+            app.createLinkDir(device: self)
             return app
         }
         
@@ -163,7 +163,7 @@ final class Device: Decodable {
                 return
             }
             if let app = Application(bundleID: bundleID, bundleDirUrl: bundleDirUrl, sandboxDirUrl: sandboxDirUrl, device: self) {
-                app.createLinkDir()
+                app.createLinkDir(device: self)
                 apps.append(app)
             } else {
                 cache.ignoreURLs.insert(bundleDirUrl)
