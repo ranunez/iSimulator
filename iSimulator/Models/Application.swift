@@ -107,12 +107,12 @@ final class Application {
         })
     }
     
-    func createLinkDir(device: Device) {
+    func createLinkDir(device: Device, runtime: Runtime) {
         guard linkURL == nil else { return }
         var url = UserDefaults.standard.rootLinkURL
-        url.appendPathComponent(device.runtime.name)
+        url.appendPathComponent(runtime.name)
         
-        if device.runtime.devices.filter({ $0.name == device.name }).count > 1 {
+        if runtime.devices.filter({ $0.name == device.name }).count > 1 {
             url.appendPathComponent("\(device.name)_\(device.udid)")
         } else {
             url.appendPathComponent(device.name)

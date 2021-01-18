@@ -22,7 +22,7 @@ final class Device: Decodable {
     
     var applications: [Application] = []
     
-    weak var runtime: Runtime!
+    private weak var runtime: Runtime!
     
     var dataURL: URL {
         return Device.url.appendingPathComponent("\(self.udid)/data")
@@ -140,7 +140,7 @@ final class Device: Decodable {
         }
     }
     
-    func updateApps(with cache: ApplicationCache) {
+    func updateApps(with cache: ApplicationCache, runtime: Runtime) {
         let bundleContents = (try? FileManager.default.contentsOfDirectory(at: bundleURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])) ?? []
         
         let sandboxContents = (try? FileManager.default.contentsOfDirectory(at: sandboxURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])) ?? []
@@ -149,7 +149,7 @@ final class Device: Decodable {
         
         var apps = bundleContents.compactMap { url -> Application? in
             guard let app = cache.urlAndAppDic[url] else { return nil }
-            app.createLinkDir(device: self)
+            app.createLinkDir(device: self, runtime: runtime)
             return app
         }
         
@@ -163,7 +163,7 @@ final class Device: Decodable {
                 return
             }
             if let app = Application(bundleID: bundleID, bundleDirUrl: bundleDirUrl, sandboxDirUrl: sandboxDirUrl, device: self) {
-                app.createLinkDir(device: self)
+                app.createLinkDir(device: self, runtime: runtime)
                 apps.append(app)
             } else {
                 cache.ignoreURLs.insert(bundleDirUrl)

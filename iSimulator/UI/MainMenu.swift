@@ -81,8 +81,7 @@ final class MainMenu: NSMenu {
                             runtime.devices = devices[runtime.name] ?? devices[runtime.identifier] ?? []
                             
                             runtime.devices.forEach {
-                                $0.runtime = runtime
-                                $0.updateApps(with: self.appCache)
+                                $0.updateApps(with: self.appCache, runtime: runtime)
                                 $0.updateAppGroups(runtime: runtime)
                                 
                                 $0.applications.forEach { app in
