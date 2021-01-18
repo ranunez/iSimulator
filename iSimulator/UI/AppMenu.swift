@@ -12,9 +12,11 @@ import Cocoa
 
 final class AppMenu: NSMenu {
     private let app: Application
+    private let device: Device
     
-    init(_ app: Application) {
+    init(_ app: Application, device: Device) {
         self.app = app
+        self.device = device
         super.init(title: "")
         
         let showInFinderItem = NSMenuItem(title: "Show in Finder", action: #selector(showInFinderAction), keyEquivalent: "")
@@ -69,7 +71,7 @@ final class AppMenu: NSMenu {
     
     @objc private func resetAction() {
         let alert: NSAlert = NSAlert()
-        alert.messageText = String(format: "Are you sure you want to Reset Content %@ from %@?", app.bundleDisplayName, app.device.name)
+        alert.messageText = String(format: "Are you sure you want to Reset Content %@ from %@?", app.bundleDisplayName, device.name)
         alert.informativeText = "All of sandbox data in this application will be remove."
         alert.alertStyle = .critical
         alert.addButton(withTitle: "Reset")
@@ -83,7 +85,7 @@ final class AppMenu: NSMenu {
     
     @objc private func uninstallAction() {
         let alert: NSAlert = NSAlert()
-        alert.messageText = String(format: "Are you sure you want to uninstall %@ from %@?", app.bundleDisplayName, app.device.name)
+        alert.messageText = String(format: "Are you sure you want to uninstall %@ from %@?", app.bundleDisplayName, device.name)
         alert.informativeText = "All of data(sandbox/bundle) in this application will be deleted."
         alert.alertStyle = .critical
         alert.addButton(withTitle: "Uninstall")

@@ -27,7 +27,7 @@ final class DeviceMenuItem: NSMenuItem {
                 appMenuItem.image = app.image
                 appMenuItem.attributedTitle = app.attributeStr
                 appMenuItem.indentationLevel = 1
-                appMenuItem.submenu = AppMenu(app)
+                appMenuItem.submenu = AppMenu(app, device: device)
                 
                 self.submenu?.addItem(appMenuItem)
             })
