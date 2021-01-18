@@ -39,3 +39,39 @@ func xcrun(arguments: String...) -> Result<Data, XCRunError> {
         return .success(outputData)
     }
 }
+
+func xcrunFindXcodePath() -> Result<String, XCRunError> {
+    switch xcrun(arguments: "xcode-select", "-p") {
+    case .success(let xcodePathData):
+        guard let xcodePath = String(data: xcodePathData, encoding: .utf8) else {
+            return .failure(XCRunError(command: "", message: "xcode-select did not return a valid value."))
+        }
+        let normalizedXcodePath = xcodePath.replacingOccurrences(of: "\n", with: "")
+        return .success(normalizedXcodePath)
+    case .failure(let error):
+        return .failure(error)
+    }
+}
+
+func xcrunFindSimulatorPath() -> Result<String, XCRunError> {
+    switch xcrunFindXcodePath() {
+    case .success(let xcodePath):
+        return .success("\(xcodePath)/Applications/Simulator.app")
+    case .failure(let error):
+        return.failure(error)
+    }
+}
+
+func xcrunOpenSimulatorApp() -> Result<Void, XCRunError> {
+    switch xcrunFindSimulatorPath() {
+    case .success(let simulatorPath):
+        switch xcrun(arguments: "open", simulatorPath) {
+        case .success:
+            return .success(())
+        case .failure(let error):
+            return .failure(error)
+        }
+    case .failure(let error):
+        return .failure(error)
+    }
+}

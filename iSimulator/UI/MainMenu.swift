@@ -42,10 +42,10 @@ final class MainMenu: NSMenu {
             self.watchQueue?.removeAllPaths()
             self.watchQueue?.addPath(Device.url.path)
             
-            switch xcrun(arguments: "xcode-select", "-p") {
-            case .success(let xcodePathData):
+            switch xcrunFindXcodePath() {
+            case .success(let xcodePath):
                 let shouldUpdateCache: Bool
-                if let xcodePath = String(data: xcodePathData, encoding: .utf8), self.lastXcodePath != xcodePath {
+                if self.lastXcodePath != xcodePath {
                     self.lastXcodePath = xcodePath
                     shouldUpdateCache = true
                 } else if isForceUpdate {

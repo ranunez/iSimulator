@@ -63,6 +63,7 @@ final class Device: Decodable {
     }
     
     func boot() -> Result<Void, XCRunError> {
+        _ = xcrunOpenSimulatorApp()
         switch xcrun(arguments: "simctl", "boot", udid) {
         case .success:
             return .success(())
@@ -72,6 +73,7 @@ final class Device: Decodable {
     }
     
     func shutdown() -> Result<Void, XCRunError> {
+        _ = xcrunOpenSimulatorApp()
         switch xcrun(arguments: "simctl", "shutdown", udid) {
         case .success:
             return .success(())
@@ -89,6 +91,7 @@ final class Device: Decodable {
                 return .failure(error)
             }
         }
+        _ = xcrunOpenSimulatorApp()
         switch xcrun(arguments: "simctl", "erase", udid) {
         case .success:
             return .success(())
@@ -98,6 +101,7 @@ final class Device: Decodable {
     }
     
     func delete() -> Result<Void, XCRunError> {
+        _ = xcrunOpenSimulatorApp()
         switch xcrun(arguments: "simctl", "delete", udid) {
         case .success:
             return .success(())
