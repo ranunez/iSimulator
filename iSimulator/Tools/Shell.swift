@@ -30,7 +30,7 @@ func xcrun(arguments: String...) -> Result<Data, XCRunError> {
     
     let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
     if outputData.isEmpty {
-        let command = "\(launchPath) \(arguments.reduce("", { "\($0) \($1)" }))"
+        let command = "\(launchPath)\(arguments.reduce("", { "\($0) \($1)" }))"
         let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
         let errorMessage = String(data: errorData, encoding: .utf8) ?? ""
         let error = XCRunError(command: command, message: errorMessage)

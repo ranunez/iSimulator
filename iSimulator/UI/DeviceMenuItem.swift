@@ -74,9 +74,19 @@ final class DeviceMenuItem: NSMenuItem {
     @objc private func performStateAction() {
         switch device.state {
         case .booted:
-            try? device.shutdown()
+            switch device.shutdown() {
+            case .success:
+                break
+            case .failure(let error):
+                error.displayAlert()
+            }
         case .shutdown:
-            try? device.boot()
+            switch device.boot() {
+            case .success:
+                break
+            case .failure(let error):
+                error.displayAlert()
+            }
         }
     }
     
@@ -101,12 +111,26 @@ final class DeviceMenuItem: NSMenuItem {
         let response = alert.runModal()
         let deviceState = device.state
         if response == .alertFirstButtonReturn {
-            try? device.erase()
-            switch deviceState{
-            case .booted:
-                try? device.boot()
-            case .shutdown:
-                try? device.shutdown()
+            switch device.erase() {
+            case .success:
+                switch deviceState{
+                case .booted:
+                    switch device.boot() {
+                    case .success:
+                        break
+                    case .failure(let error):
+                        error.displayAlert()
+                    }
+                case .shutdown:
+                    switch device.shutdown() {
+                    case .success:
+                        break
+                    case .failure(let error):
+                        error.displayAlert()
+                    }
+                }
+            case .failure(let error):
+                error.displayAlert()
             }
         }
     }
@@ -131,7 +155,12 @@ final class DeviceMenuItem: NSMenuItem {
         NSApp.activate(ignoringOtherApps: true)
         let response = alert.runModal()
         if response == .alertFirstButtonReturn {
-            try? device.delete()
+            switch device.delete() {
+            case .success:
+                break
+            case .failure(let error):
+                error.displayAlert()
+            }
         }
     }
 }

@@ -81,7 +81,12 @@ final class Application {
     
     func launch() {
         if device.state == .shutdown {
-            try? device.boot()
+            switch device.boot() {
+            case .success:
+                break
+            case .failure(let error):
+                error.displayAlert()
+            }
         }
         xcrun(arguments: "simctl", "launch", device.udid, bundleID)
     }

@@ -62,32 +62,48 @@ final class Device: Decodable {
         udid = try container.decode(String.self, forKey: .udid)
     }
     
-    func boot() throws {
-        xcrun(arguments: "simctl", "boot", udid)
+    func boot() -> Result<Void, XCRunError> {
+        switch xcrun(arguments: "simctl", "boot", udid) {
+        case .success:
+            return .success(())
+        case .failure(let error):
+            return .failure(error)
+        }
     }
     
-    func shutdown() throws {
-        xcrun(arguments: "simctl", "shutdown", udid)
+    func shutdown() -> Result<Void, XCRunError> {
+        switch xcrun(arguments: "simctl", "shutdown", udid) {
+        case .success:
+            return .success(())
+        case .failure(let error):
+            return .failure(error)
+        }
     }
     
-    func erase() throws {
+    func erase() -> Result<Void, XCRunError> {
         if state == .booted {
-            try? shutdown()
+            switch shutdown() {
+            case .success:
+                break
+            case .failure(let error):
+                return .failure(error)
+            }
         }
-        let afterTime: TimeInterval
-        switch state {
-        case .booted:
-            afterTime = 0.3
-        case .shutdown:
-            afterTime = 0
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + afterTime) {
-            xcrun(arguments: "simctl", "erase", self.udid)
+        switch xcrun(arguments: "simctl", "erase", udid) {
+        case .success:
+            return .success(())
+        case .failure(let error):
+            return .failure(error)
         }
     }
     
-    func delete() throws {
-        xcrun(arguments: "simctl", "delete", udid)
+    func delete() -> Result<Void, XCRunError> {
+        switch xcrun(arguments: "simctl", "delete", udid) {
+        case .success:
+            return .success(())
+        case .failure(let error):
+            return .failure(error)
+        }
     }
     
     func updateAppGroups(runtime: Runtime) {
