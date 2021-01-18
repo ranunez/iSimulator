@@ -37,7 +37,7 @@ final class AppMenu: NSMenu {
         resetitem.representedObject = self
         self.addItem(resetitem)
         
-        if app.device.state == .booted {
+        if device.state == .booted {
             let terminateItem = NSMenuItem(title: "Terminate", action: #selector(terminateAction), keyEquivalent: "")
             terminateItem.target = self
             terminateItem.image = nil

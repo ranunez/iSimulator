@@ -19,7 +19,7 @@ final class Application {
     let image: NSImage
     private let originImage: NSImage
     
-    weak var device: Device!
+    private weak var device: Device!
     
     private(set) var linkURL: URL?
     

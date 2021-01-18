@@ -149,7 +149,6 @@ final class Device: Decodable {
         
         var apps = bundleContents.compactMap { url -> Application? in
             guard let app = cache.urlAndAppDic[url] else { return nil }
-            app.device = self
             app.createLinkDir()
             return app
         }
