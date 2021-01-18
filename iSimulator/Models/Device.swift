@@ -22,8 +22,6 @@ final class Device: Decodable {
     
     var applications: [Application] = []
     
-    private weak var runtime: Runtime!
-    
     var dataURL: URL {
         return Device.url.appendingPathComponent("\(self.udid)/data")
     }
