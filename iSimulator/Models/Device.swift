@@ -69,26 +69,17 @@ struct Device: Decodable {
     }
     
     func boot() -> Result<Void, XCRunError> {
-        _ = xcrunOpenSimulatorApp()
-        switch xcrun(arguments: "simctl", "boot", udid.uuidString) {
-        case .success:
-            return .success(())
-        case .failure(let error):
-            return .failure(error)
-        }
+        _ = ShellCommand.Open.simulatorApp.execute()
+        return ShellCommand.Device.boot.execute(deviceUDID: udid)
     }
     
     func shutdown() -> Result<Void, XCRunError> {
-        _ = xcrunOpenSimulatorApp()
-        switch xcrun(arguments: "simctl", "shutdown", udid.uuidString) {
-        case .success:
-            return .success(())
-        case .failure(let error):
-            return .failure(error)
-        }
+        _ = ShellCommand.Open.simulatorApp.execute()
+        return ShellCommand.Device.shutdown.execute(deviceUDID: udid)
     }
     
     func erase() -> Result<Void, XCRunError> {
+        _ = ShellCommand.Open.simulatorApp.execute()
         if state == .booted {
             switch shutdown() {
             case .success:
@@ -97,23 +88,12 @@ struct Device: Decodable {
                 return .failure(error)
             }
         }
-        _ = xcrunOpenSimulatorApp()
-        switch xcrun(arguments: "simctl", "erase", udid.uuidString) {
-        case .success:
-            return .success(())
-        case .failure(let error):
-            return .failure(error)
-        }
+        return ShellCommand.Device.erase.execute(deviceUDID: udid)
     }
     
     func delete() -> Result<Void, XCRunError> {
-        _ = xcrunOpenSimulatorApp()
-        switch xcrun(arguments: "simctl", "delete", udid.uuidString) {
-        case .success:
-            return .success(())
-        case .failure(let error):
-            return .failure(error)
-        }
+        _ = ShellCommand.Open.simulatorApp.execute()
+        return ShellCommand.Device.delete.execute(deviceUDID: udid)
     }
     
     private static func identifierAndUrl(with urls: [URL]) -> [String: URL] {

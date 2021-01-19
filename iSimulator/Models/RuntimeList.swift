@@ -24,6 +24,6 @@ struct RuntimeList: Decodable {
         self.runtimes = runtimes.map({ runtimeMetadata -> Runtime in
             let runtimeDevices = devices[runtimeMetadata.name] ?? devices[runtimeMetadata.identifier] ?? []
             return Runtime(metadata: runtimeMetadata, devices: runtimeDevices)
-        })
+        }).sorted(by: { $0.name < $1.name })
     }
 }

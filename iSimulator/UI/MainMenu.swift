@@ -38,53 +38,45 @@ final class MainMenu: NSMenu {
             self.watchQueue?.removeAllPaths()
             self.watchQueue?.addPath(Device.url.path)
             
-            switch xcrun(arguments: "simctl", "list", "-j") {
-            case .success(let jsonData):
-                let decoder = JSONDecoder()
-                var deviceItems: [NSMenuItem]
-                if let runtimeList = try? decoder.decode(RuntimeList.self, from: jsonData) {
-                    let runtimes = runtimeList.runtimes.sorted(by: { $0.name < $1.name })
-                    
-                    let allRuntimeDevices = runtimes.flatMap({ $0.devices })
-                    
-                    allRuntimeDevices.forEach { device in
-                        self.watchQueue?.addPath(device.dataURL.path)
-                        if FileManager.default.fileExists(atPath: device.bundleURL.path) {
-                            self.watchQueue?.addPath(device.bundleURL.path)
+            switch ShellCommand.List.devices.execute() {
+            case .success(let runtimes):
+                let allRuntimeDevices = runtimes.flatMap({ $0.devices })
+                
+                allRuntimeDevices.forEach { device in
+                    self.watchQueue?.addPath(device.dataURL.path)
+                    if FileManager.default.fileExists(atPath: device.bundleURL.path) {
+                        self.watchQueue?.addPath(device.bundleURL.path)
+                    }
+                }
+                
+                DispatchQueue.main.async {
+                    let deviceInfoURLPaths = allRuntimeDevices.compactMap({ $0.infoURL.path })
+                    _ = FileWatch(paths: deviceInfoURLPaths, eventHandler: { [weak self] shouldRefresh in
+                        if shouldRefresh {
+                            self?.refresh()
                         }
+                    })
+                }
+                
+                var deviceItems = runtimes.flatMap { runtime -> [NSMenuItem] in
+                    let hasAppDeviceItems: [NSMenuItem] = runtime.devices.filter({ !$0.applications.isEmpty }).map { DeviceMenuItem($0) }
+                    if hasAppDeviceItems.isEmpty {
+                        return []
+                    } else {
+                        let titleItem = NSMenuItem(title: runtime.name,
+                                                   action: nil,
+                                                   keyEquivalent: "")
+                        titleItem.isEnabled = false
+                        
+                        var items = [NSMenuItem]()
+                        items.append(titleItem)
+                        items.append(contentsOf: hasAppDeviceItems)
+                        return items
                     }
-                    
-                    DispatchQueue.main.async {
-                        let deviceInfoURLPaths = allRuntimeDevices.compactMap({ $0.infoURL.path })
-                        _ = FileWatch(paths: deviceInfoURLPaths, eventHandler: { [weak self] shouldRefresh in
-                            if shouldRefresh {
-                                self?.refresh()
-                            }
-                        })
-                    }
-                    
-                    deviceItems = runtimes.flatMap { runtime -> [NSMenuItem] in
-                        let hasAppDeviceItems: [NSMenuItem] = runtime.devices.filter({ !$0.applications.isEmpty }).map { DeviceMenuItem($0) }
-                        if hasAppDeviceItems.isEmpty {
-                            return []
-                        } else {
-                            let titleItem = NSMenuItem(title: runtime.name,
-                                                       action: nil,
-                                                       keyEquivalent: "")
-                            titleItem.isEnabled = false
-                            
-                            var items = [NSMenuItem]()
-                            items.append(titleItem)
-                            items.append(contentsOf: hasAppDeviceItems)
-                            return items
-                        }
-                    }
-                    
-                    if runtimes.contains(where: { $0.devices.contains(where: { $0.applications.isEmpty }) }) {
-                        deviceItems.append(NSMenuItem.separator())
-                    }
-                } else {
-                    deviceItems = []
+                }
+                
+                if runtimes.contains(where: { $0.devices.contains(where: { $0.applications.isEmpty }) }) {
+                    deviceItems.append(NSMenuItem.separator())
                 }
                 
                 deviceItems.append(self.refreshMenuItem)

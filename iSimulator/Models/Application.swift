@@ -59,23 +59,18 @@ struct Application {
     
     func launch(device: Device) {
         if device.state == .shutdown {
-            switch device.boot() {
-            case .success:
-                break
-            case .failure(let error):
-                error.displayAlert()
-            }
+            _ = device.boot()
         }
-        xcrun(arguments: "simctl", "launch", device.udid.uuidString, bundleID)
+        ShellCommand.App.launch.execute(deviceUDID: device.udid, bundleId: bundleID)
     }
     
     func terminate(device: Device) {
-        xcrun(arguments: "simctl", "terminate", device.udid.uuidString, bundleID)
+        ShellCommand.App.terminate.execute(deviceUDID: device.udid, bundleId: bundleID)
     }
     
     func uninstall(device: Device) {
         self.terminate(device: device)
-        xcrun(arguments: "simctl", "uninstall", device.udid.uuidString, bundleID)
+        ShellCommand.App.uninstall.execute(deviceUDID: device.udid, bundleId: bundleID)
     }
     
     func resetContent() {
