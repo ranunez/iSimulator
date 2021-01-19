@@ -4,7 +4,6 @@ iSimulator is a GUI utility to control the Simulator, and manage the app install
 
 - [Features](#features)
 - [Usage](#usage)
-- [Build from the code](#build-from-the-code)
 - [Requirements](#requirements)
 - [Preview](#preview)
 - [License](#license)
@@ -15,13 +14,12 @@ iSimulator is a GUI utility to control the Simulator, and manage the app install
 
 - [x] Show all simulators, including iOS, watchOS, tvOS and paired watches.
 - [x] Create, erase, delete a simulator.
-- [x] Pair iPhone and iWatch simulator.
 - [x] Start, shutdown a simulator, and can start multiple simulators at the same time.
 
 **Control application:**
 
 - [x] Shows all applications installed on the simulator.
-- [x] Easy to access application bundle, sandbox folder. **iSimulator will create a folder that contains the app's bundle and sandbox. This will make access app's data easier.**
+- [x] Easy to access application bundle, sandbox folder.
 - [x] Launch, terminate, uninstall application.
 - [x] **Launch one application for other simulator.** Very easy to share an app to other simulators without having to rebuild.
 
