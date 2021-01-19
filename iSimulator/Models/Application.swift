@@ -8,29 +8,16 @@
 
 import Cocoa
 
-final class Application {
+struct Application {
     let bundleID: String
     let bundleDirUrl: URL
     let sandboxDirUrl: URL
-    let appUrl: URL
     let bundleDisplayName: String
     let bundleShortVersion: String
     let bundleVersion: String
     let image: NSImage
-    private let originImage: NSImage
     
-    private(set) var linkURL: URL?
-    
-    lazy private(set) var attributeStr: NSMutableAttributedString = {
-        let name = "\(bundleDisplayName) - \(bundleShortVersion)(\(bundleVersion))"
-        let other = "\n\(bundleID)"
-        let att = NSMutableAttributedString(string: name + other)
-        att.addAttributes([NSAttributedString.Key.font: NSFont.systemFont(ofSize: 13)], range: NSRange(location: 0, length: name.count))
-        att.addAttributes([NSAttributedString.Key.font: NSFont.systemFont(ofSize: 11), NSAttributedString.Key.foregroundColor: NSColor.lightGray], range: NSRange(location: name.count, length: other.count))
-        return att
-    }()
-    
-    init?(bundleID: String, bundleDirUrl: URL, sandboxDirUrl: URL, device: Device) {
+    init?(bundleID: String, bundleDirUrl: URL, sandboxDirUrl: URL) {
         self.bundleID = bundleID
         self.bundleDirUrl = bundleDirUrl
         self.sandboxDirUrl = sandboxDirUrl
@@ -42,7 +29,6 @@ final class Application {
         }
         
         guard let appURL = contents.first(where: { $0.pathExtension == "app" }) else { return nil }
-        self.appUrl = appURL
         
         let appInfoURL = appURL.appendingPathComponent("Info.plist")
         guard let appInfoDict = NSDictionary(contentsOf: appInfoURL),
@@ -52,12 +38,8 @@ final class Application {
                 return nil
         }
         bundleDisplayName = aBundleDisplayName
-        
-        let aBundleShortVersion = appInfoDict["CFBundleShortVersionString"] as? String ?? "NULL"
-        let aBundleVersion = appInfoDict["CFBundleVersion"] as? String ?? "NULL"
-        bundleShortVersion = aBundleShortVersion
-        bundleVersion = aBundleVersion
-        
+        bundleShortVersion = appInfoDict["CFBundleShortVersionString"] as? String ?? "NULL"
+        bundleVersion = appInfoDict["CFBundleVersion"] as? String ?? "NULL"
         
         let iconFile: String?
         if let cfBundleIconsDictionary = appInfoDict["CFBundleIcons"] as? [String: Any], let cfBundlePrimaryIconDictionary = cfBundleIconsDictionary["CFBundlePrimaryIcon"] as? [String: Any], let icons = cfBundlePrimaryIconDictionary["CFBundleIconFiles"] as? [String] {
@@ -68,11 +50,9 @@ final class Application {
             iconFile = "Icon.png"
         }
         
-        if let iconFile = iconFile, let bundle = Bundle(url: appUrl), let im = bundle.image(forResource: iconFile) {
-            originImage = im
+        if let iconFile = iconFile, let bundle = Bundle(url: appURL), let im = bundle.image(forResource: iconFile) {
             image = im.appIcon()
         } else {
-            originImage = #imageLiteral(resourceName: "default_ios_app_icon")
             image = #imageLiteral(resourceName: "default_ios_app_icon_small")
         }
     }
@@ -86,16 +66,16 @@ final class Application {
                 error.displayAlert()
             }
         }
-        xcrun(arguments: "simctl", "launch", device.udid, bundleID)
+        xcrun(arguments: "simctl", "launch", device.udid.uuidString, bundleID)
     }
     
     func terminate(device: Device) {
-        xcrun(arguments: "simctl", "terminate", device.udid, bundleID)
+        xcrun(arguments: "simctl", "terminate", device.udid.uuidString, bundleID)
     }
     
     func uninstall(device: Device) {
         self.terminate(device: device)
-        xcrun(arguments: "simctl", "uninstall", device.udid, bundleID)
+        xcrun(arguments: "simctl", "uninstall", device.udid.uuidString, bundleID)
     }
     
     func resetContent() {
@@ -105,55 +85,6 @@ final class Application {
         contents?.forEach({ url in
             try? FileManager.default.removeItem(at: url)
         })
-    }
-    
-    func createLinkDir(device: Device, runtime: Runtime) {
-        guard linkURL == nil else { return }
-        var url = UserDefaults.standard.rootLinkURL
-        url.appendPathComponent(runtime.name)
-        
-        if runtime.devices.filter({ $0.name == device.name }).count > 1 {
-            url.appendPathComponent("\(device.name)_\(device.udid)")
-        } else {
-            url.appendPathComponent(device.name)
-        }
-        
-        if device.applications.filter({ $0.bundleDisplayName == bundleDisplayName }).count > 1 {
-            url.appendPathComponent("\(bundleDisplayName)_\(bundleID)")
-        } else {
-            url.appendPathComponent(bundleDisplayName)
-        }
-        do {
-            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
-            self.linkURL = url
-        } catch {
-            return
-        }
-        let bundleURL = url.appendingPathComponent("Bundle")
-        let sandboxURL = url.appendingPathComponent("Sandbox")
-        createSymbolicLink(at: bundleURL, withDestinationURL: bundleDirUrl)
-        createSymbolicLink(at: sandboxURL, withDestinationURL: sandboxDirUrl)
-        
-        NSWorkspace.shared.setIcon(originImage, forFile: url.path, options:[])
-    }
-    
-    private func createSymbolicLink(at url: URL, withDestinationURL destURL: URL) {
-        if let destinationUrlPath = try? FileManager.default.destinationOfSymbolicLink(atPath: url.path),
-            destinationUrlPath == destURL.path{
-            return
-        }
-        try? FileManager.default.removeItem(at: url)
-        try? FileManager.default.createSymbolicLink(at: url, withDestinationURL: destURL)
-    }
-    
-    func removeLinkDir() {
-        guard let url = linkURL else { return }
-        let bundleURL = url.appendingPathComponent("Bundle")
-        if let destinationUrlPath = try? FileManager.default.destinationOfSymbolicLink(atPath: bundleURL.path),
-            FileManager.default.fileExists(atPath: destinationUrlPath){
-            return
-        }
-        try? FileManager.default.removeItem(at: url)
     }
 }
 
@@ -178,20 +109,5 @@ extension NSImage {
         NSGraphicsContext.restoreGraphicsState()
         newImage.unlockFocus()
         return newImage
-    }
-}
-
-extension UserDefaults {
-    static let kUserDefaultDocumentKey = "kUserDefaultDocumentKey"
-    static let kDocumentName = "iSimulator"
-    
-    var rootLinkURL: URL {
-        let url: URL
-        if let path = string(forKey: Self.kUserDefaultDocumentKey) {
-            url = URL(fileURLWithPath: path)
-        } else {
-            url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        }
-        return url.appendingPathComponent(Self.kDocumentName)
     }
 }

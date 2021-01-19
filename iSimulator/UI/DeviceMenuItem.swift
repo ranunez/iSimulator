@@ -20,12 +20,30 @@ final class DeviceMenuItem: NSMenuItem {
         self.submenu = NSMenu()
         
         if !device.applications.isEmpty {
-            self.submenu?.addItem(NSMenuItem(title: "Application", action: nil, keyEquivalent: ""))
+            self.submenu?.addItem(NSMenuItem(title: "Application",
+                                             action: nil,
+                                             keyEquivalent: ""))
             device.applications.forEach({ app in
                 
-                let appMenuItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+                let appMenuItem = NSMenuItem(title: "",
+                                             action: nil,
+                                             keyEquivalent: "")
                 appMenuItem.image = app.image
-                appMenuItem.attributedTitle = app.attributeStr
+                
+                let name = "\(app.bundleDisplayName) - \(app.bundleShortVersion)(\(app.bundleVersion))"
+                let other = "\n\(app.bundleID)"
+                let attributedString = NSMutableAttributedString(string: name + other)
+                
+                attributedString.addAttributes([.font: NSFont.systemFont(ofSize: 13)],
+                                               range: NSRange(location: 0,
+                                                              length: name.count))
+                
+                attributedString.addAttributes([.font: NSFont.systemFont(ofSize: 11),
+                                                .foregroundColor: NSColor.lightGray],
+                                               range: NSRange(location: name.count,
+                                                              length: other.count))
+                
+                appMenuItem.attributedTitle = attributedString
                 appMenuItem.indentationLevel = 1
                 appMenuItem.submenu = AppMenu(app, device: device)
                 
@@ -34,7 +52,9 @@ final class DeviceMenuItem: NSMenuItem {
             self.submenu?.addItem(NSMenuItem.separator())
         }
         
-        let simActionItem = NSMenuItem(title: "Simulator Action", action: nil, keyEquivalent: "")
+        let simActionItem = NSMenuItem(title: "Simulator Action",
+                                       action: nil,
+                                       keyEquivalent: "")
         self.submenu?.addItem(simActionItem)
         
         let stateItemTitle: String
@@ -45,21 +65,27 @@ final class DeviceMenuItem: NSMenuItem {
             stateItemTitle = "Boot"
         }
         
-        let stateitem = NSMenuItem(title: stateItemTitle, action: #selector(performStateAction), keyEquivalent: "")
+        let stateitem = NSMenuItem(title: stateItemTitle,
+                                   action: #selector(performStateAction),
+                                   keyEquivalent: "")
         stateitem.indentationLevel = 1
         stateitem.target = self
         stateitem.image = nil
         stateitem.representedObject = action
         self.submenu?.addItem(stateitem)
         
-        let eraseitem = NSMenuItem(title: "Erase All content and setting...", action: #selector(performEraseAction), keyEquivalent: "")
+        let eraseitem = NSMenuItem(title: "Erase All content and setting...",
+                                   action: #selector(performEraseAction),
+                                   keyEquivalent: "")
         eraseitem.indentationLevel = 1
         eraseitem.target = self
         eraseitem.image = nil
         eraseitem.representedObject = action
         self.submenu?.addItem(eraseitem)
         
-        let deleteitem = NSMenuItem(title: "Delete...", action: #selector(performDeleteAction), keyEquivalent: "")
+        let deleteitem = NSMenuItem(title: "Delete...",
+                                    action: #selector(performDeleteAction),
+                                    keyEquivalent: "")
         deleteitem.indentationLevel = 1
         deleteitem.target = self
         deleteitem.image = nil
@@ -97,7 +123,7 @@ final class DeviceMenuItem: NSMenuItem {
         textView.isEditable = false
         textView.drawsBackground = false
         let prefixStr = "This action will make device reset to its initial state.\n The device udid:\n"
-        let udidStr = device.udid
+        let udidStr = device.udid.uuidString
         let att = NSMutableAttributedString(string: prefixStr + udidStr)
         att.addAttributes([.font: NSFont.boldSystemFont(ofSize: 11)],
                           range: NSRange(location: prefixStr.count,
@@ -142,7 +168,7 @@ final class DeviceMenuItem: NSMenuItem {
         textView.isEditable = false
         textView.drawsBackground = false
         let prefixStr = "All of the installed content and settings in this simulator will also be deleted.\n The device udid:\n"
-        let udidStr = device.udid
+        let udidStr = device.udid.uuidString
         let att = NSMutableAttributedString(string: prefixStr + udidStr)
         att.addAttributes([.font: NSFont.boldSystemFont(ofSize: 11)],
                           range: NSRange(location: prefixStr.count,

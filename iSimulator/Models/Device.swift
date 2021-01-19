@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class Device: Decodable {
+struct Device: Decodable {
     enum State: String, Decodable {
         case booted = "Booted"
         case shutdown = "Shutdown"
@@ -18,29 +18,17 @@ final class Device: Decodable {
     
     let name: String
     
-    let udid: String
+    let udid: UUID
     
-    var applications: [Application] = []
+    let applications: [Application]
     
-    var dataURL: URL {
-        return Device.url.appendingPathComponent("\(self.udid)/data")
-    }
+    let dataURL: URL
     
-    var sandboxURL: URL {
-        return Device.url.appendingPathComponent("\(self.udid)/data/Containers/Data/Application")
-    }
+    let sandboxURL: URL
     
-    var bundleURL: URL {
-        return Device.url.appendingPathComponent("\(self.udid)/data/Containers/Bundle/Application")
-    }
+    let bundleURL: URL
     
-    var appGroupURL: URL {
-        return Device.url.appendingPathComponent("\(self.udid)/data/Containers/Shared/AppGroup")
-    }
-    
-    var infoURL: URL {
-        return Device.url.appendingPathComponent("\(self.udid)/device.plist")
-    }
+    let infoURL: URL
     
     static let url: URL = {
         let userLibraryURL = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first!
@@ -57,12 +45,32 @@ final class Device: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         state = try container.decode(State.self, forKey: .state)
         name = try container.decode(String.self, forKey: .name)
-        udid = try container.decode(String.self, forKey: .udid)
+        udid = try container.decode(UUID.self, forKey: .udid)
+        
+        bundleURL = Device.url.appendingPathComponent("\(udid)/data/Containers/Bundle/Application")
+        sandboxURL = Device.url.appendingPathComponent("\(udid)/data/Containers/Data/Application")
+        infoURL = Device.url.appendingPathComponent("\(udid)/device.plist")
+        dataURL = Device.url.appendingPathComponent("\(udid)/data")
+        
+        let idAndBundleUrlDic = Self.identifierAndUrl(with: bundleURL.files)
+        let idAndSandboxUrlDic = Self.identifierAndUrl(with: sandboxURL.files)
+        
+        self.applications = idAndBundleUrlDic.compactMap { (bundleID, bundleDirUrl) -> Application? in
+            guard let sandboxDirUrl = idAndSandboxUrlDic[bundleID] else {
+                return nil
+            }
+            guard let app = Application(bundleID: bundleID,
+                                        bundleDirUrl: bundleDirUrl,
+                                        sandboxDirUrl: sandboxDirUrl) else {
+                return nil
+            }
+            return app
+        }
     }
     
     func boot() -> Result<Void, XCRunError> {
         _ = xcrunOpenSimulatorApp()
-        switch xcrun(arguments: "simctl", "boot", udid) {
+        switch xcrun(arguments: "simctl", "boot", udid.uuidString) {
         case .success:
             return .success(())
         case .failure(let error):
@@ -72,7 +80,7 @@ final class Device: Decodable {
     
     func shutdown() -> Result<Void, XCRunError> {
         _ = xcrunOpenSimulatorApp()
-        switch xcrun(arguments: "simctl", "shutdown", udid) {
+        switch xcrun(arguments: "simctl", "shutdown", udid.uuidString) {
         case .success:
             return .success(())
         case .failure(let error):
@@ -90,7 +98,7 @@ final class Device: Decodable {
             }
         }
         _ = xcrunOpenSimulatorApp()
-        switch xcrun(arguments: "simctl", "erase", udid) {
+        switch xcrun(arguments: "simctl", "erase", udid.uuidString) {
         case .success:
             return .success(())
         case .failure(let error):
@@ -100,7 +108,7 @@ final class Device: Decodable {
     
     func delete() -> Result<Void, XCRunError> {
         _ = xcrunOpenSimulatorApp()
-        switch xcrun(arguments: "simctl", "delete", udid) {
+        switch xcrun(arguments: "simctl", "delete", udid.uuidString) {
         case .success:
             return .success(())
         case .failure(let error):
@@ -108,82 +116,28 @@ final class Device: Decodable {
         }
     }
     
-    func updateAppGroups(runtime: Runtime) {
-        let appGroupContents = try? FileManager.default.contentsOfDirectory(at: appGroupURL,
-                                                                            includingPropertiesForKeys: [.isDirectoryKey],
-                                                                            options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])
-        
-        appGroupContents?.forEach { fileURL in
-            guard let id = identifier(with: fileURL), !id.contains("com.apple") else { return }
-            var url = UserDefaults.standard.rootLinkURL
-            url.appendPathComponent(runtime.name)
-            
-            if runtime.devices.filter({ $0.name == name }).count > 1 {
-                url.appendPathComponent("\(name)_\(udid)")
-            } else {
-                url.appendPathComponent(name)
-            }
-            url.appendPathComponent("AppGroupSandBox")
-            do {
-                try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
-                url.appendPathComponent(id)
-                
-                if (try? FileManager.default.destinationOfSymbolicLink(atPath: url.path)) != fileURL.path {
-                    try? FileManager.default.removeItem(at: url)
-                    try? FileManager.default.createSymbolicLink(at: url, withDestinationURL: fileURL)
-                }
-            } catch {
-                return
-            }
-        }
-    }
-    
-    func updateApps(with cache: ApplicationCache, runtime: Runtime) {
-        let bundleContents = (try? FileManager.default.contentsOfDirectory(at: bundleURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])) ?? []
-        
-        let sandboxContents = (try? FileManager.default.contentsOfDirectory(at: sandboxURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])) ?? []
-        
-        let newBundles = bundleContents.filter({ !cache.ignoreURLs.contains($0) })
-        
-        var apps = bundleContents.compactMap { url -> Application? in
-            guard let app = cache.urlAndAppDic[url] else { return nil }
-            app.createLinkDir(device: self, runtime: runtime)
-            return app
-        }
-        
-        let newSandboxs = sandboxContents.filter({ !cache.sandboxURLs.contains($0) && !cache.ignoreURLs.contains($0) })
-        
-        let idAndBundleUrlDic = identifierAndUrl(with: newBundles)
-        var idAndSandboxUrlDic = identifierAndUrl(with: newSandboxs)
-        
-        idAndBundleUrlDic.forEach { (bundleID, bundleDirUrl) in
-            guard let sandboxDirUrl = idAndSandboxUrlDic.removeValue(forKey: bundleID) else {
-                return
-            }
-            if let app = Application(bundleID: bundleID, bundleDirUrl: bundleDirUrl, sandboxDirUrl: sandboxDirUrl, device: self) {
-                app.createLinkDir(device: self, runtime: runtime)
-                apps.append(app)
-            } else {
-                cache.ignoreURLs.insert(bundleDirUrl)
-            }
-        }
-        idAndSandboxUrlDic.forEach({ cache.ignoreURLs.insert($0.value) })
-        self.applications = apps
-    }
-    
-    private func identifierAndUrl(with urls: [URL]) -> [String: URL] {
+    private static func identifierAndUrl(with urls: [URL]) -> [String: URL] {
         return urls.reduce([String: URL]()) { (result, url) -> [String: URL] in
-            guard let identifier = self.identifier(with: url) else { return result }
+            let plistURL = url.appendingPathComponent(".com.apple.mobile_container_manager.metadata.plist")
+            guard let contents = NSDictionary(contentsOf: plistURL) else { return result }
+            guard let bundleId = contents["MCMMetadataIdentifier"] as? String else { return result }
             var updatedResult = result
-            updatedResult[identifier] = url
+            updatedResult[bundleId] = url
             return updatedResult
         }
     }
-    
-    private func identifier(with url: URL) -> String? {
-        let plistURL = url.appendingPathComponent(".com.apple.mobile_container_manager.metadata.plist")
-        guard let contents = NSDictionary(contentsOf: plistURL) else { return nil }
-        guard let identifier = contents["MCMMetadataIdentifier"] as? String else { return nil }
-        return identifier
+}
+
+extension URL {
+    var files: [URL] {
+        do {
+            return try FileManager.default.contentsOfDirectory(at: self,
+                                                               includingPropertiesForKeys: [.isDirectoryKey],
+                                                               options: [.skipsHiddenFiles,
+                                                                         .skipsPackageDescendants,
+                                                                         .skipsSubdirectoryDescendants])
+        } catch {
+            return []
+        }
     }
 }

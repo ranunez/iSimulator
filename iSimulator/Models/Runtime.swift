@@ -8,20 +8,25 @@
 
 import Foundation
 
-final class Runtime: Decodable {
+struct RuntimeMetadata: Decodable {
     let name: String
     let identifier: String
+}
+
+struct Runtime: Decodable {
+    let name: String
+    let identifier: String
+    let devices: [Device]
     
-    var devices = [Device]()
-    
-    private enum CodingKeys: CodingKey {
-        case name
-        case identifier
+    init(name: String, identifier: String, devices: [Device]) {
+        self.name = name
+        self.identifier = identifier
+        self.devices = devices
     }
     
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        name = try container.decode(String.self, forKey: .name)
-        identifier = try container.decode(String.self, forKey: .identifier)
+    init(metadata: RuntimeMetadata, devices: [Device]) {
+        self.init(name: metadata.name,
+                  identifier: metadata.identifier,
+                  devices: devices)
     }
 }

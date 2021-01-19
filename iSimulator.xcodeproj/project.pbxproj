@@ -18,10 +18,8 @@
 		292EADB61F458F5C009FC1ED /* MainMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292EADB51F458F5C009FC1ED /* MainMenu.swift */; };
 		293B2D421F4EA26B0009DA18 /* AppMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 293B2D411F4EA26B0009DA18 /* AppMenu.swift */; };
 		298B2DB71F5549B200D73AFA /* SKQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298B2DB61F5549B200D73AFA /* SKQueue.swift */; };
-		29B227BA1FBD7B9F00BDE5BF /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B227B91FBD7B9F00BDE5BF /* PreferencesViewController.swift */; };
 		29B591981F581513006CDEC0 /* FileWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B591971F581513006CDEC0 /* FileWatch.swift */; };
-		31CD6D0421B2942300E49DC0 /* ApplicationCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CD6D0321B2942300E49DC0 /* ApplicationCache.swift */; };
-		8CFC99B525B631E5003E8E59 /* DeviceList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CFC99B425B631E5003E8E59 /* DeviceList.swift */; };
+		8CFC99B525B631E5003E8E59 /* RuntimeList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CFC99B425B631E5003E8E59 /* RuntimeList.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,10 +36,8 @@
 		292EADB51F458F5C009FC1ED /* MainMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainMenu.swift; sourceTree = "<group>"; };
 		293B2D411F4EA26B0009DA18 /* AppMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMenu.swift; sourceTree = "<group>"; };
 		298B2DB61F5549B200D73AFA /* SKQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SKQueue.swift; sourceTree = "<group>"; };
-		29B227B91FBD7B9F00BDE5BF /* PreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesViewController.swift; sourceTree = "<group>"; };
 		29B591971F581513006CDEC0 /* FileWatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileWatch.swift; sourceTree = "<group>"; };
-		31CD6D0321B2942300E49DC0 /* ApplicationCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCache.swift; sourceTree = "<group>"; };
-		8CFC99B425B631E5003E8E59 /* DeviceList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceList.swift; sourceTree = "<group>"; };
+		8CFC99B425B631E5003E8E59 /* RuntimeList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeList.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,11 +64,10 @@
 		29157C581F4D62940069BDB6 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				29157C5B1F4D66110069BDB6 /* Runtime.swift */,
-				8CFC99B425B631E5003E8E59 /* DeviceList.swift */,
-				29157C5D1F4D66220069BDB6 /* Device.swift */,
 				29157C611F4D7EB90069BDB6 /* Application.swift */,
-				31CD6D0321B2942300E49DC0 /* ApplicationCache.swift */,
+				29157C5D1F4D66220069BDB6 /* Device.swift */,
+				29157C5B1F4D66110069BDB6 /* Runtime.swift */,
+				8CFC99B425B631E5003E8E59 /* RuntimeList.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -114,7 +109,6 @@
 				292EADB51F458F5C009FC1ED /* MainMenu.swift */,
 				293B2D411F4EA26B0009DA18 /* AppMenu.swift */,
 				291157AD1FB5501C000EE94F /* DeviceMenuItem.swift */,
-				29B227B91FBD7B9F00BDE5BF /* PreferencesViewController.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -203,17 +197,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8CFC99B525B631E5003E8E59 /* DeviceList.swift in Sources */,
+				8CFC99B525B631E5003E8E59 /* RuntimeList.swift in Sources */,
 				29157C621F4D7EB90069BDB6 /* Application.swift in Sources */,
 				293B2D421F4EA26B0009DA18 /* AppMenu.swift in Sources */,
 				29157C551F4D56400069BDB6 /* Shell.swift in Sources */,
 				292EADA41F458B3D009FC1ED /* AppDelegate.swift in Sources */,
 				29157C5C1F4D66110069BDB6 /* Runtime.swift in Sources */,
-				29B227BA1FBD7B9F00BDE5BF /* PreferencesViewController.swift in Sources */,
 				298B2DB71F5549B200D73AFA /* SKQueue.swift in Sources */,
 				29157C5E1F4D66220069BDB6 /* Device.swift in Sources */,
 				291157AE1FB5501C000EE94F /* DeviceMenuItem.swift in Sources */,
-				31CD6D0421B2942300E49DC0 /* ApplicationCache.swift in Sources */,
 				29B591981F581513006CDEC0 /* FileWatch.swift in Sources */,
 				292EADB61F458F5C009FC1ED /* MainMenu.swift in Sources */,
 			);

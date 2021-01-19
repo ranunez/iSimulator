@@ -19,32 +19,50 @@ final class AppMenu: NSMenu {
         self.device = device
         super.init(title: "")
         
-        let showInFinderItem = NSMenuItem(title: "Show in Finder", action: #selector(showInFinderAction), keyEquivalent: "")
-        showInFinderItem.target = self
-        showInFinderItem.image = nil
-        showInFinderItem.representedObject = self
-        self.addItem(showInFinderItem)
+        let showAppBundleInFinderItem = NSMenuItem(title: "Show App Bundle in Finder",
+                                          action: #selector(showAppBundleInFinderAction),
+                                          keyEquivalent: "")
+        showAppBundleInFinderItem.target = self
+        showAppBundleInFinderItem.image = nil
+        showAppBundleInFinderItem.representedObject = self
+        self.addItem(showAppBundleInFinderItem)
         
-        let launchitem = NSMenuItem(title: "Launch", action: #selector(launchAction), keyEquivalent: "")
+        let showSandboxContainerInFinderItem = NSMenuItem(title: "Show Sandbox Container in Finder",
+                                          action: #selector(showSandboxInFinderAction),
+                                          keyEquivalent: "")
+        showSandboxContainerInFinderItem.target = self
+        showSandboxContainerInFinderItem.image = nil
+        showSandboxContainerInFinderItem.representedObject = self
+        self.addItem(showSandboxContainerInFinderItem)
+        
+        let launchitem = NSMenuItem(title: "Launch",
+                                    action: #selector(launchAction),
+                                    keyEquivalent: "")
         launchitem.target = self
         launchitem.image = nil
         launchitem.representedObject = self
         self.addItem(launchitem)
         
-        let resetitem = NSMenuItem(title: "Reset Content...", action: #selector(resetAction), keyEquivalent: "")
+        let resetitem = NSMenuItem(title: "Reset Content...",
+                                   action: #selector(resetAction),
+                                   keyEquivalent: "")
         resetitem.target = self
         resetitem.image = nil
         resetitem.representedObject = self
         self.addItem(resetitem)
         
         if device.state == .booted {
-            let terminateItem = NSMenuItem(title: "Terminate", action: #selector(terminateAction), keyEquivalent: "")
+            let terminateItem = NSMenuItem(title: "Terminate",
+                                           action: #selector(terminateAction),
+                                           keyEquivalent: "")
             terminateItem.target = self
             terminateItem.image = nil
             terminateItem.representedObject = self
             self.addItem(terminateItem)
             
-            let uninstallItem = NSMenuItem(title: "Uninstall...", action: #selector(uninstallAction), keyEquivalent: "")
+            let uninstallItem = NSMenuItem(title: "Uninstall...",
+                                           action: #selector(uninstallAction),
+                                           keyEquivalent: "")
             uninstallItem.target = self
             uninstallItem.image = nil
             uninstallItem.representedObject = self
@@ -56,8 +74,13 @@ final class AppMenu: NSMenu {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc private func showInFinderAction() {
-        guard let url = app.linkURL else { return }
+    @objc private func showSandboxInFinderAction() {
+        let url = app.sandboxDirUrl
+        NSWorkspace.shared.open(url)
+    }
+    
+    @objc private func showAppBundleInFinderAction() {
+        let url = app.bundleDirUrl
         NSWorkspace.shared.open(url)
     }
     
