@@ -1,7 +1,7 @@
 import Foundation
 
 final class FileWatch {
-    struct EventFlag: OptionSet {
+    private struct EventFlag: OptionSet {
         let rawValue: FSEventStreamEventFlags
         init(rawValue: FSEventStreamEventFlags) {
             self.rawValue = rawValue
@@ -11,16 +11,11 @@ final class FileWatch {
         static let ItemIsFile = EventFlag(rawValue: FSEventStreamEventFlags(kFSEventStreamEventFlagItemIsFile))
     }
     
-    enum Error: Swift.Error {
-        case startFailed
-        case streamCreateFailed
-    }
-    
-    private let eventHandler: (EventFlag) -> Void
+    private let eventHandler: (Bool) -> Void
     
     private var eventStream: FSEventStreamRef?
     
-    init(paths: [String], eventHandler: @escaping (EventFlag) -> Void) throws {
+    init?(paths: [String], eventHandler: @escaping (Bool) -> Void) {
         self.eventHandler = eventHandler
         var ctx = FSEventStreamContext(version: 0, info: UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()), retain: nil, release: nil, copyDescription: nil)
         
@@ -33,13 +28,13 @@ final class FileWatch {
                                                     FSEventStreamEventId(kFSEventStreamEventIdSinceNow),
                                                     1,
                                                     17) else {
-            throw Error.streamCreateFailed
+            return nil
         }
         
         FSEventStreamScheduleWithRunLoop(eventStream, RunLoop.current.getCFRunLoop(),
                                          CFRunLoopMode.defaultMode.rawValue)
         if !FSEventStreamStart(eventStream) {
-            throw Error.startFailed
+            return nil
         }
         
         self.eventStream = eventStream
@@ -57,7 +52,9 @@ final class FileWatch {
     
     private static let StreamCallback: FSEventStreamCallback = {(streamRef, clientCallBackInfo, numEvents, eventPaths, eventFlags, eventIds) -> Void in
         Array(UnsafeBufferPointer(start: eventFlags, count: numEvents)).forEach { flag in
-            unsafeBitCast(clientCallBackInfo, to: FileWatch.self).eventHandler(EventFlag(rawValue: flag))
+            let eventFlag = EventFlag(rawValue: flag)
+            let shouldTriggerRefresh = eventFlag.contains(.ItemIsFile) && eventFlag.contains(.ItemRenamed)
+            unsafeBitCast(clientCallBackInfo, to: FileWatch.self).eventHandler(shouldTriggerRefresh)
         }
     }
 }

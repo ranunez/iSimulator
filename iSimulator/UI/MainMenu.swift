@@ -56,8 +56,8 @@ final class MainMenu: NSMenu {
                     
                     DispatchQueue.main.async {
                         let deviceInfoURLPaths = allRuntimeDevices.compactMap({ $0.infoURL.path })
-                        _ = try? FileWatch(paths: deviceInfoURLPaths, eventHandler: { [weak self] eventFlag in
-                            if eventFlag.contains(.ItemIsFile) && eventFlag.contains(.ItemRenamed) {
+                        _ = FileWatch(paths: deviceInfoURLPaths, eventHandler: { [weak self] shouldRefresh in
+                            if shouldRefresh {
                                 self?.refresh()
                             }
                         })
