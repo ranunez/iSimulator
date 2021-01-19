@@ -348,6 +348,7 @@
 				INFOPLIST_FILE = iSimulator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MARKETING_VERSION = 4.0;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ranunez.iSimulator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -369,6 +370,7 @@
 				INFOPLIST_FILE = iSimulator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MARKETING_VERSION = 4.0;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ranunez.iSimulator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
