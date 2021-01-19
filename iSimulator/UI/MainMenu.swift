@@ -119,7 +119,7 @@ final class MainMenu: NSMenu {
                     }
                     
                     var deviceItems = self.runtimes.sorted(by: { $0.name < $1.name }).flatMap { runtime -> [NSMenuItem] in
-                        let hasAppDeviceItems: [NSMenuItem] = runtime.devices.filter({ !$0.applications.isEmpty }).compactMap { DeviceMenuItem($0) }
+                        let hasAppDeviceItems: [NSMenuItem] = runtime.devices.filter({ !$0.applications.isEmpty }).map { DeviceMenuItem($0) }
                         if hasAppDeviceItems.isEmpty {
                             return []
                         } else {
